@@ -43,10 +43,10 @@ public class TableComparator {
 
         while (sourceTables.next()) {
             String tableName = sourceTables.getString("TABLE_NAME");
-            if (tableExistsInTarget(tableName, targetTables)) {
+            if (DBUtils.tableExistsInTarget(tableName, targetTables)) {
                 // 表存在于目标数据库，比较表结构
-                String sourceTableDDL = showCreateTable(sourceConn, null, tableName);
-                String targetTableDDL = showCreateTable(targetConn, null, tableName);
+                String sourceTableDDL = DBUtils.showCreateTable(sourceConn, null, tableName);
+                String targetTableDDL = DBUtils.showCreateTable(targetConn, null, tableName);
                 if (!sourceTableDDL.equals(targetTableDDL)) {
                     // 生成差异化语句并添加到diffStatements列表中
                     List<String> alterTableSQL = BuildSQL.generateAlterTableSQL(sourceTableDDL, targetTableDDL);
@@ -56,7 +56,7 @@ public class TableComparator {
                 }
             } else {
                 // 表不存在于目标数据库，生成创建表的SQL语句并添加到diffStatements列表中
-                String sourceTableDDL = showCreateTable(sourceConn, null, tableName);
+                String sourceTableDDL = DBUtils.showCreateTable(sourceConn, null, tableName);
                 diffStatements.add(sourceTableDDL);
             }
         }
@@ -66,43 +66,6 @@ public class TableComparator {
         return diffStatements;
     }
 
-
-    public static String showCreateTable(Connection conn, String schema, String tableName) throws SQLException {
-        String createTableSQL = null;
-        String showCreateTableSQL;
-        if (schema != null && !schema.isEmpty()) {
-            // 构造 SHOW CREATE TABLE 语句
-            showCreateTableSQL = "SHOW CREATE TABLE %s.%s".formatted(schema, tableName);
-        } else {
-            showCreateTableSQL = "SHOW CREATE TABLE %s".formatted(tableName);
-        }
-
-
-        // 执行 SHOW CREATE TABLE 语句，获取结果集
-        Statement statement = conn.createStatement();
-        ResultSet resultSet = statement.executeQuery(showCreateTableSQL);
-
-        // 解析结果集，获取表的创建语句
-        if (resultSet.next()) {
-            createTableSQL = resultSet.getString("Create Table");
-        }
-
-        // 关闭资源
-        resultSet.close();
-        statement.close();
-
-        return STR."\{createTableSQL};";
-    }
-
-    private static boolean tableExistsInTarget(String tableName, ResultSet targetTables) throws SQLException {
-        while (targetTables.next()) {
-            String targetTableName = targetTables.getString("TABLE_NAME");
-            if (tableName.equalsIgnoreCase(targetTableName)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
 
 }

@@ -4,6 +4,7 @@ import cn.hutool.core.date.StopWatch;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.example.script.constant.FolderType;
 import com.example.script.constant.SQLSaveType;
+import com.example.script.domain.DiffDDL;
 import com.example.script.utils.DBUtils;
 import com.example.script.utils.FileUtils;
 import com.example.script.utils.MigrationUtils;
@@ -27,11 +28,37 @@ public class ScriptApplication {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start("计时");
         //getSQL();
-        getSQLByFile();
+        getSQLBySourceFile();
 
 
         stopWatch.stop();
         System.out.println(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
+
+    }
+    private static void getSQLBySourceFile(){
+
+        try (DruidDataSource targetDataSource = DBUtils.createDataSource(TARGET_URL, TARGET_USERNAME, TARGET_PASSWORD)) {
+            Connection targetConn = targetDataSource.getConnection();
+
+
+            String message = """
+                    **************************
+                    **********%s***********
+                    **************************""";
+            System.err.println(message.formatted("差异化DDL开始"));
+            DiffDDL diffDDL = TableFileComparator.getDiffDDL(targetConn);
+            Map<String, Map<String, List<String>>> diffSchemas = diffDDL.getDiffSchemas();
+            FileUtils.process(diffSchemas, FileUtils::saveToFile, "./diff2/");
+            System.err.println(message.formatted("差异化DDL结束"));
+            System.err.println(message.formatted("差异化DML开始"));
+            Map<String, Map<String, List<String>>> diffDML = DataFileComparator.getDiffDML(diffDDL, targetConn);
+            FileUtils.process(diffDML, FileUtils::saveToFile, "./diff2/");
+            System.err.println(message.formatted("差异化DML结束"));
+
+
+        } catch (Exception e) {
+        e.printStackTrace();
+    }
 
     }
 
@@ -42,9 +69,7 @@ public class ScriptApplication {
         Map<String, List<String>> creates = initSQL.get(SQLSaveType.DDL_CREATE);
         // 《数据库名，《表名，sql语句》》
         Map<String, Map<String, Set<String>>> allKeys = new HashMap<>();
-        creates.entrySet().forEach(entry -> {
-            String databaseName = entry.getKey();
-            List<String> tables = entry.getValue();
+        creates.forEach((databaseName, tables) -> {
             Map<String, Set<String>> tableKeys = TableFileComparator.getPrimaryOrUniqueKeys(tables);
             allKeys.put(databaseName, tableKeys);
 
@@ -52,9 +77,7 @@ public class ScriptApplication {
         //《数据库名，插入sql语句》
         Map<String, List<String>> inserts = initSQL.get(SQLSaveType.DML_INSERT);
 
-        inserts.entrySet().forEach(entry -> {
-            String databaseName = entry.getKey();
-            List<String> insetSQLs = entry.getValue();
+        inserts.forEach((databaseName, insetSQLs) -> {
             Map<String, Map<Map<String, Object>, Map<String, Object>>> stringMapMap = DataFileComparator.fetchData(insetSQLs, allKeys.get(databaseName));
 
             stringMapMap.entrySet().forEach(System.out::println);
@@ -67,6 +90,8 @@ public class ScriptApplication {
 
             Connection sourceConn = sourceDataSource.getConnection();
             Connection targetConn = targetDataSource.getConnection();
+
+
             String message = """
                     **************************
                     **********%s***********
@@ -85,6 +110,7 @@ public class ScriptApplication {
             Map<String, Map<String, List<String>>> diffDML = DataComparator.getDiffDML(sourceConn, targetConn);
             FileUtils.process(diffDML, FileUtils::saveToFile, "./diff/");
             System.err.println(message.formatted("差异化DML结束"));
+
 
         } catch (Exception e) {
             e.printStackTrace();

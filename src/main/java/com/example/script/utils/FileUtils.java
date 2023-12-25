@@ -1,5 +1,6 @@
 package com.example.script.utils;
 
+import com.example.script.constant.FolderType;
 import com.example.script.functions.TriConsumer;
 
 import java.io.IOException;
@@ -58,7 +59,9 @@ public class FileUtils {
         }
         return result;
     }
-
+    public static Map<String, Map<String, List<String>>> getInitSQLByDefault(){
+        return getFileByDefault(FolderType.INIT);
+    }
     /**
      *
      * @param folder

@@ -128,4 +128,41 @@ public class DBUtils {
         }
     }
 
+    public static boolean tableExistsInTarget(String tableName, ResultSet targetTables) throws SQLException {
+        while (targetTables.next()) {
+            String targetTableName = targetTables.getString("TABLE_NAME");
+            if (tableName.equalsIgnoreCase(targetTableName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static String showCreateTable(Connection conn, String schema, String tableName) throws SQLException {
+        String createTableSQL = null;
+        String showCreateTableSQL;
+        if (schema != null && !schema.isEmpty()) {
+            // 构造 SHOW CREATE TABLE 语句
+            showCreateTableSQL = "SHOW CREATE TABLE %s.%s".formatted(schema, tableName);
+        } else {
+            showCreateTableSQL = "SHOW CREATE TABLE %s".formatted(tableName);
+        }
+
+
+        // 执行 SHOW CREATE TABLE 语句，获取结果集
+        Statement statement = conn.createStatement();
+        ResultSet resultSet = statement.executeQuery(showCreateTableSQL);
+
+        // 解析结果集，获取表的创建语句
+        if (resultSet.next()) {
+            createTableSQL = resultSet.getString("Create Table");
+        }
+
+        // 关闭资源
+        resultSet.close();
+        statement.close();
+
+        return STR."\{createTableSQL};";
+    }
+
 }

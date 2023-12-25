@@ -9,9 +9,20 @@ import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlCreateTableStateme
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
+import com.example.script.constant.SQLSaveType;
+import com.example.script.domain.DiffDDL;
 import com.example.script.domain.TableKey;
+import com.example.script.utils.DBUtils;
+import com.example.script.utils.FileUtils;
+import com.example.script.utils.comparator.BuildSQL;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
+
+import static com.example.script.constant.SQLSaveType.DIFF_TABLE;
 
 /**
  * @author albert lewis
@@ -19,54 +30,84 @@ import java.util.*;
  */
 public class TableFileComparator {
 
-//    public static Map<String, Map<String, List<String>>> getDiffDDL(Connection sourceConn, Connection targetConn) throws SQLException {
-//        Map<String, Map<String, List<String>>> result = new HashMap<>();
-//        List<String> databases = DBUtils.getAllDatabases(sourceConn);
-//        for (String database : databases) {
-//            List<String> diffStatements = compareTableSchema(sourceConn, targetConn, database);
-//            if (!diffStatements.isEmpty()) {
-//                result.put(DIFF_TABLE, Map.of(database, diffStatements));
-//            }
-//
-//        }
-//        return result;
-//
-//    }
+    public static DiffDDL getDiffDDL(Connection targetConn) {
+        Map<String, Map<String, List<String>>> result = new HashMap<>();
+        Map<String, Map<String, Set<String>>> allKeys = new HashMap<>();
+        Map<String, List<String>> creates= getCreatesByDefault();
+        creates.forEach((databaseName, tables) -> {
+            try {
+                List<String> diffStatements = compareTableSchema(tables, targetConn, databaseName);
+                if (!diffStatements.isEmpty()) {
+                    result.put(DIFF_TABLE, Map.of(databaseName, diffStatements));
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            Map<String, Set<String>> tableKeys = TableFileComparator.getPrimaryOrUniqueKeys(tables);
+            allKeys.put(databaseName, tableKeys);
 
-//    public static List<String> compareTableSchema(Connection sourceConn, Connection targetConn, String databaseName) throws SQLException {
-//        List<String> diffStatements = new ArrayList<>();
-//
-//        DatabaseMetaData sourceMetaData = sourceConn.getMetaData();
-//        DatabaseMetaData targetMetaData = targetConn.getMetaData();
-//
-//        // 获取源数据库和目标数据库的表列表
-//        ResultSet sourceTables = sourceMetaData.getTables(databaseName, null, null, new String[]{"TABLE"});
-//        ResultSet targetTables = targetMetaData.getTables(databaseName, null, null, new String[]{"TABLE"});
-//
-//        while (sourceTables.next()) {
-//            String tableName = sourceTables.getString("TABLE_NAME");
-//            if (tableExistsInTarget(tableName, targetTables)) {
-//                // 表存在于目标数据库，比较表结构
-//                String sourceTableDDL = showCreateTable(sourceConn, null, tableName);
-//                String targetTableDDL = showCreateTable(targetConn, null, tableName);
-//                if (!sourceTableDDL.equals(targetTableDDL)) {
-//                    // 生成差异化语句并添加到diffStatements列表中
-//                    List<String> alterTableSQL = generateAlterTableSQL(sourceTableDDL, targetTableDDL);
-//                    if (!alterTableSQL.isEmpty()) {
-//                        diffStatements.addAll(alterTableSQL);
-//                    }
-//                }
-//            } else {
-//                // 表不存在于目标数据库，生成创建表的SQL语句并添加到diffStatements列表中
-//                String sourceTableDDL = showCreateTable(sourceConn, null, tableName);
-//                diffStatements.add(sourceTableDDL);
-//            }
-//        }
-//
-//        // 关闭资源
-//
-//        return diffStatements;
-//    }
+        });
+
+        DiffDDL diffDDL=new DiffDDL();
+        diffDDL.setDiffSchemas(result);
+        diffDDL.setKeys(allKeys);
+        return diffDDL;
+
+    }
+
+    public static List<String> compareTableSchema(List<String> sourceTables, Connection targetConn, String databaseName) throws SQLException {
+        List<String> diffStatements = new ArrayList<>();
+
+
+        DatabaseMetaData targetMetaData = targetConn.getMetaData();
+
+        // 获取源数据库和目标数据库的表列表
+        ResultSet targetTables = targetMetaData.getTables(databaseName, null, null, new String[]{"TABLE"});
+
+        for (String sourceTableDDL : sourceTables) {
+            SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sourceTableDDL, DbType.mysql);
+            List<SQLStatement> statements = parser.parseStatementList();
+            String tableName = null;
+            if (!statements.isEmpty()) {
+                SQLStatement statement = statements.getFirst();
+                if (statement instanceof MySqlCreateTableStatement createTableStatement) {
+                    tableName = createTableStatement.getTableName();
+                    if (DBUtils.tableExistsInTarget(tableName.replace("`",""), targetTables)) {
+                        // 表存在于目标数据库，比较表结构
+                        String targetTableDDL = DBUtils.showCreateTable(targetConn, null, tableName);
+                        if (!sourceTableDDL.equals(targetTableDDL)) {
+                            // 生成差异化语句并添加到diffStatements列表中
+                            List<String> alterTableSQL = BuildSQL.generateAlterTableSQL(sourceTableDDL, targetTableDDL);
+                            if (!alterTableSQL.isEmpty()) {
+                                diffStatements.addAll(alterTableSQL);
+                            }
+                        }
+                    } else {
+                        // 表不存在于目标数据库，生成创建表的SQL语句并添加到diffStatements列表中
+                        diffStatements.add(sourceTableDDL);
+                    }
+
+
+                }
+            }
+        }
+
+        return diffStatements;
+    }
+
+
+    /**
+     *
+     * @return 《数据库名，建表语句》
+     */
+    public static Map<String, List<String>> getCreatesByDefault() {
+        return FileUtils.getInitSQLByDefault().get(SQLSaveType.DDL_CREATE);
+    }
+
+    /**
+     *
+     * @return 《SQL文件类型，《数据库名，sql语句》》
+     */
 
 
     /**

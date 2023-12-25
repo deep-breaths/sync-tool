@@ -3,6 +3,7 @@ package com.example.script.utils.comparator.datasource;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
+import com.alibaba.druid.util.JdbcConstants;
 import com.example.script.utils.DBUtils;
 import com.example.script.utils.comparator.BuildSQL;
 
@@ -74,7 +75,8 @@ public class DataComparator {
         }
     }
 
-    private static Map<Map<String, Object>, Map<String, Object>> fetchData(Connection conn, String databaseName, String tableName, Set<String> keys) throws SQLException {
+    public static Map<Map<String, Object>, Map<String, Object>> fetchData(Connection conn, String databaseName,
+                                                                     String tableName, Set<String> keys) throws SQLException {
         Map<Map<String, Object>, Map<String, Object>> data = new HashMap<>();
         Statement stmt = conn.createStatement();
         String sql = String.format("SELECT * FROM `%s`.`%s`;", databaseName, tableName);
@@ -102,6 +104,48 @@ public class DataComparator {
         stmt.close();
         return data;
     }
+    public static Map<String, Map<Map<String, Object>, Map<String, Object>>> fetchData(Connection conn, String databaseName,
+                                                                           List<String> tables,
+                                                                                        Map<String,Set<String>> theKeys) throws SQLException {
+        Map<String, Map<Map<String, Object>, Map<String, Object>>> data = new HashMap<>();
+        for (String tableName : tables) {
+            Statement stmt = conn.createStatement();
+            Set<String> keys=theKeys.get(tableName);
+            String format;
+            if (tableName.startsWith("`")&&tableName.endsWith("`")){
+                format = "SELECT * FROM `%s`.%s;";
+            }else {
+                format=  "SELECT * FROM `%s`.`%s`;";
+            }
 
+            String sql = String.format(format, databaseName, tableName);
+            SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcConstants.MYSQL);
+            SQLStatement sqlStatement = parser.parseStatement();
+            ResultSet rs = stmt.executeQuery(sqlStatement.toString());
+            ResultSetMetaData metaData = rs.getMetaData();
+
+            while (rs.next()) {
+                int numColumns = metaData.getColumnCount();
+                Map<String, Object> row = new HashMap<>();
+                Map<String, Object> keyValues = new HashMap<>();
+                for (int i = 1; i <= numColumns; i++) {
+                    String column = metaData.getColumnName(i);
+                    Object value = rs.getObject(column);
+                    row.put(column, value);
+
+                    if (keys.contains(column)) {
+                        keyValues.put(column, value);
+                    }
+                }
+                data.computeIfAbsent(tableName, k -> new HashMap<>());
+                data.get(tableName).put(keyValues, row);
+            }
+
+            rs.close();
+            stmt.close();
+        }
+
+        return data;
+    }
 
 }

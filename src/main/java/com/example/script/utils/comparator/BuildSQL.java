@@ -156,6 +156,7 @@ public class BuildSQL {
             List<MySqlKey> targetKeys = targetCreateTable.getMysqlKeys();
             List<String> addedKeys = new ArrayList<>();
             List<String> removedKeys = new ArrayList<>();
+            String removedPriMaryKey=null;
             for (MySqlKey targetKey : targetKeys) {
                 boolean found = false;
                 for (MySqlKey sourceKey : sourceKeys) {
@@ -168,6 +169,8 @@ public class BuildSQL {
                     SQLIndexDefinition indexDefinition = targetKey.getIndexDefinition();
                     if (!"PRIMARY".equals(indexDefinition.getType())) {
                         removedKeys.add(String.format("ALTER TABLE %s DROP INDEX %s;", targetTableName, targetKey.getName()));
+                    }else {
+                        removedPriMaryKey = String.format("ALTER TABLE %s DROP PRIMARY KEY;", targetTableName);
                     }
 
                 }
@@ -184,12 +187,15 @@ public class BuildSQL {
                 if (!found) {
                     SQLIndexDefinition indexDefinition = sourceKey.getIndexDefinition();
                     if ("PRIMARY".equals(indexDefinition.getType())) {
-                        removedKeys.add(String.format("ALTER TABLE %s DROP PRIMARY KEY,ADD %s;", targetTableName, sourceKey));
+                        removedPriMaryKey = String.format("ALTER TABLE %s DROP PRIMARY KEY,ADD %s;", targetTableName, sourceKey);
                     } else {
                         addedKeys.add(String.format("ALTER TABLE %s ADD %s;", targetTableName, sourceKey));
                     }
 
                 }
+            }
+            if (removedPriMaryKey!=null){
+                removedKeys.add(removedPriMaryKey);
             }
             alterTableSQLs.addAll(addedColumns);
             alterTableSQLs.addAll(modifiedColumns);

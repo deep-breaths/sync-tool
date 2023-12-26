@@ -3,7 +3,7 @@ server:
 spring:
   datasource:
     driverClassName: org.h2.Driver
-    url: jdbc:h2:~/data/sync-tool;DB_CLOSE_DELAY=-1
+    url: jdbc:h2:~/data/sync-tool;MODE=MySQL;DB_CLOSE_DELAY=-1
     username: sa
     password: sa
     # 开启这个配置就可以通过 web 页面访问了，例如：http://localhost:8080/springboot-h2/h2-console

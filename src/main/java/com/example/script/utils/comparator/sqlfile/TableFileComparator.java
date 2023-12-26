@@ -72,7 +72,8 @@ public class TableFileComparator {
                 SQLStatement statement = statements.getFirst();
                 if (statement instanceof MySqlCreateTableStatement createTableStatement) {
                     tableName = createTableStatement.getTableName();
-                    if (DBUtils.tableExistsInTarget(tableName.replace("`",""), targetTables)) {
+                    tableName=tableName==null?null:tableName.replace("`","");
+                    if (DBUtils.tableExistsInTarget(tableName, targetTables)) {
                         // 表存在于目标数据库，比较表结构
                         String targetTableDDL = DBUtils.showCreateTable(targetConn, null, tableName);
                         if (!sourceTableDDL.equals(targetTableDDL)) {
@@ -138,6 +139,7 @@ public class TableFileComparator {
             SQLStatement statement = statements.getFirst();
             if (statement instanceof MySqlCreateTableStatement createTableStatement) {
                 tableName = createTableStatement.getTableName();
+                tableName=tableName==null?null:tableName.replace("`","");
                 MySqlSchemaStatVisitor visitor = new MySqlSchemaStatVisitor();
                 statement.accept(visitor);
                 List<MySqlKey> sqlKeys = createTableStatement.getMysqlKeys();
@@ -146,13 +148,13 @@ public class TableFileComparator {
                         columns
                                 .getIndexDefinition()
                                 .getColumns()
-                                .forEach(column -> keys.add(column.getExpr().toString()));
+                                .forEach(column -> keys.add(column.getExpr().toString().replace("`","")));
                         break;
                     } else if (key instanceof MySqlUnique columns) {
                         columns
                                 .getIndexDefinition()
                                 .getColumns()
-                                .forEach(column -> keys.add(column.getExpr().toString()));
+                                .forEach(column -> keys.add(column.getExpr().toString().replace("`","")));
                         break;
                     }
 

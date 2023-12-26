@@ -138,24 +138,6 @@ public class FileUtils {
                           });
             }
 
-//            // 输出数据库名称、文件名和SQL列表
-//            for (Map.Entry<String, Map<String, List<String>>> sqlSaveTypeEntry : allSQLMap.entrySet()) {
-//                String sqlSaveType = sqlSaveTypeEntry.getKey();
-//                Map<String, List<String>> fileSQLMap = sqlSaveTypeEntry.getValue();
-//                System.out.println("存储的sql文件类型：" + sqlSaveType);
-//                for (Map.Entry<String, List<String>> databaseEntry : fileSQLMap.entrySet()) {
-//                    String databaseName = databaseEntry.getKey();
-//
-//                    List<String> sqlList = databaseEntry.getValue();
-//
-//                    System.out.println("数据库：" + databaseName);
-//                    System.out.println("SQL列表：");
-//                    for (String sql : sqlList) {
-//                        System.out.println(sql);
-//                    }
-//                    System.out.println();
-//                }
-//            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -172,16 +154,10 @@ public class FileUtils {
      */
     public static void process(Map<String, Map<String, List<String>>> allData, TriConsumer<String, String,
             List<String>> fileProcessor, String filePath) {
-        allData.entrySet().forEach(entry -> {
-            String sqlType = entry.getKey();
-            Map<String, List<String>> sqlMap = entry.getValue();
-            sqlMap.entrySet().forEach(sqlEntry -> {
-                String dbName = sqlEntry.getKey();
-                List<String> sqlList = sqlEntry.getValue();
-                String fullPath = filePath+dbName;
-                fileProcessor.accept(fullPath, STR."\{sqlType}.sql", sqlList);
-            });
-        });
+        allData.forEach((sqlType, sqlMap) -> sqlMap.forEach((dbName, sqlList) -> {
+            String fullPath = filePath + dbName;
+            fileProcessor.accept(fullPath, STR."\{sqlType}.sql", sqlList);
+        }));
     }
 
 //    public static void processInitSQL(Map<String, List<String>> initSQL, TriConsumer<String, String, List<String>> fileProcessor, String filePath) {

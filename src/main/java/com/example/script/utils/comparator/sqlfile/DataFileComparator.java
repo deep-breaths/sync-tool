@@ -109,6 +109,7 @@ public static FetchData fetchData(String sql, Map<String, Set<String>> keys) {
     SQLStatement sqlStatement = parser.parseStatement();
     if (sqlStatement instanceof MySqlInsertStatement insertStatement) {
         tableName = insertStatement.getTableName().getSimpleName();
+        tableName=tableName==null?null:tableName.replace("`","");
         Set<String> tableKeys = keys.get(tableName);
         if (tableKeys!=null){
             FetchData fetchData = fetchData(sql, tableKeys);
@@ -132,6 +133,7 @@ public static FetchData fetchData(String sql, Map<String, Set<String>> keys) {
         SQLStatement sqlStatement = parser.parseStatement();
         if (sqlStatement instanceof MySqlInsertStatement insertStatement) {
             tableName = insertStatement.getTableName().getSimpleName();
+            tableName=tableName==null?null:tableName.replace("`","");
             //StringBuilder out = new StringBuilder();
 //                MySqlExportParameterVisitor visitor=new MySqlExportParameterVisitor(out);
             MySqlExportParameterVisitor visitor = new MySqlExportParameterVisitor();
@@ -146,6 +148,7 @@ public static FetchData fetchData(String sql, Map<String, Set<String>> keys) {
                 SQLExpr columnExpr = columns.get(i);
                 Object value = columnValues.get(i);
                 String column = columnExpr.toString();
+                column=column==null?null:column.replace("`","");
                 row.put(column, value);
                 if (keys.contains(column)) {
                     keyValues.put(column, value);

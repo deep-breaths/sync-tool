@@ -143,9 +143,9 @@ public class DBUtils {
         String showCreateTableSQL;
         if (schema != null && !schema.isEmpty()) {
             // 构造 SHOW CREATE TABLE 语句
-            showCreateTableSQL = "SHOW CREATE TABLE %s.%s".formatted(schema, tableName);
+            showCreateTableSQL = "SHOW CREATE TABLE `%s`.`%s`".formatted(schema, tableName);
         } else {
-            showCreateTableSQL = "SHOW CREATE TABLE %s".formatted(tableName);
+            showCreateTableSQL = "SHOW CREATE TABLE `%s`".formatted(tableName);
         }
 
 

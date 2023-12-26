@@ -21,7 +21,15 @@ import java.util.stream.Collectors;
  */
 public class BuildSQL {
     public static String buildInsertSql(String databaseName, String tableName, Map<String, Object> rowData) {
-        String columns = String.join(", ", rowData.keySet());
+//        String columns = String.join(", ", rowData.keySet());
+        StringBuilder sb = new StringBuilder();
+        for (String key : rowData.keySet()) {
+            sb.append("`").append(key).append("`").append(", ");
+        }
+        if (!sb.isEmpty()) {
+            sb.setLength(sb.length() - 2);
+        }
+        String columns = sb.toString();
         String values = rowData.values().stream()
                                .map(DBUtils::convertJavaType)
                                .collect(Collectors.joining(", "));
@@ -41,11 +49,11 @@ public class BuildSQL {
     public static String buildUpdateSql(String databaseName, String tableName, Map<String, Object> keyValues, Map<String,
             Object> rowData) {
         String setClause = rowData.entrySet().stream()
-                                  .map(entry -> STR."\{entry.getKey()} = \{DBUtils.convertJavaType(entry.getValue())}")
+                                  .map(entry -> STR."`\{entry.getKey()}` = \{DBUtils.convertJavaType(entry.getValue())}")
                                   .collect(Collectors.joining(", "));
 
         String whereClause = keyValues.entrySet().stream()
-                                      .map(entry -> STR."\{entry.getKey()} = \{DBUtils.convertJavaType(entry.getValue())}")
+                                      .map(entry -> STR."`\{entry.getKey()}` = \{DBUtils.convertJavaType(entry.getValue())}")
                                       .collect(Collectors.joining(" AND "));
 
         String resultSQL;
@@ -62,7 +70,7 @@ public class BuildSQL {
 
     public static String buildDeleteSql(String databaseName, String tableName, Map<String, Object> keyValues) {
         String whereClause = keyValues.entrySet().stream()
-                                      .map(entry -> STR."\{entry.getKey()} = \{DBUtils.convertJavaType(entry.getValue())}")
+                                      .map(entry -> STR."\{entry.getKey()} = `\{DBUtils.convertJavaType(entry.getValue())}`")
                                       .collect(Collectors.joining(" AND "));
         String resultSQL;
         if (databaseName != null) {

@@ -1,6 +1,5 @@
 package com.example.script.utils.comparator.sqlfile;
 
-import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.dialect.mysql.ast.MySqlKey;
 import com.alibaba.druid.sql.dialect.mysql.ast.MySqlPrimaryKey;
@@ -9,6 +8,7 @@ import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlCreateTableStateme
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
+import com.alibaba.druid.util.JdbcConstants;
 import com.example.script.constant.SQLSaveType;
 import com.example.script.domain.DiffDDL;
 import com.example.script.domain.TableKey;
@@ -65,7 +65,7 @@ public class TableFileComparator {
         ResultSet targetTables = targetMetaData.getTables(databaseName, null, null, new String[]{"TABLE"});
 
         for (String sourceTableDDL : sourceTables) {
-            SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sourceTableDDL, DbType.mysql);
+            SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sourceTableDDL, JdbcConstants.MYSQL);
             List<SQLStatement> statements = parser.parseStatementList();
             String tableName = null;
             if (!statements.isEmpty()) {
@@ -131,7 +131,7 @@ public class TableFileComparator {
 
     private static TableKey getPrimaryOrUniqueKeys(String tableDDL) {
         Set<String> keys = new HashSet<>();
-        SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(tableDDL, DbType.mysql);
+        SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(tableDDL, JdbcConstants.MYSQL);
         List<SQLStatement> statements = parser.parseStatementList();
 
         String tableName = null;

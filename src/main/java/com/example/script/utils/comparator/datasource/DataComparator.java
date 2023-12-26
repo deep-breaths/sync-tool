@@ -80,7 +80,7 @@ public class DataComparator {
         Map<Map<String, Object>, Map<String, Object>> data = new HashMap<>();
         Statement stmt = conn.createStatement();
         String sql = String.format("SELECT * FROM `%s`.`%s`;", databaseName, tableName);
-        SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, "mysql");
+        SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcConstants.MYSQL);
         SQLStatement sqlStatement = parser.parseStatement();
         ResultSet rs = stmt.executeQuery(sqlStatement.toString());
         ResultSetMetaData metaData = rs.getMetaData();

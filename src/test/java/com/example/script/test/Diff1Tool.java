@@ -1,9 +1,10 @@
-package test;
+package com.example.script.test;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.sql.ast.SQLStatement;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableItem;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableStatement;
 import com.alibaba.druid.sql.ast.statement.SQLColumnDefinition;
-import com.alibaba.druid.sql.ast.statement.SQLCreateTableStatement;
 import com.alibaba.druid.sql.dialect.mysql.parser.MySqlStatementParser;
 
 import java.sql.*;
@@ -16,7 +17,7 @@ import static com.example.script.constant.DBConstant.*;
  * @author albert lewis
  * @date 2023/12/20
  */
-public class Diff2Tool {
+public class Diff1Tool {
 
 
     public static void main(String[] args) throws SQLException {
@@ -97,9 +98,6 @@ public class Diff2Tool {
             createTableSQL = resultSet.getString("Create Table");
         }
 
-        // 关闭资源
-        resultSet.close();
-        statement.close();
 
         return createTableSQL;
     }
@@ -125,64 +123,75 @@ public class Diff2Tool {
             SQLStatement sourceStatement = sourceStatementList.get(0);
             SQLStatement targetStatement = targetStatementList.get(0);
 
-            if (sourceStatement instanceof SQLCreateTableStatement && targetStatement instanceof SQLCreateTableStatement){
-                SQLCreateTableStatement sourceCreateTable = (SQLCreateTableStatement) sourceStatement;
-                SQLCreateTableStatement targetCreateTable = (SQLCreateTableStatement) targetStatement;
+            if (sourceStatement instanceof SQLAlterTableStatement && targetStatement instanceof SQLAlterTableStatement) {
+                SQLAlterTableStatement sourceAlterTable = (SQLAlterTableStatement) sourceStatement;
+                SQLAlterTableStatement targetAlterTable = (SQLAlterTableStatement) targetStatement;
+
                 // 获取源表和目标表的表名
-                String sourceTableName = sourceCreateTable.getTableName();
-                String targetTableName = sourceCreateTable.getTableName();
+                String sourceTableName = sourceAlterTable.getTableSource().getExpr().toString();
+                String targetTableName = targetAlterTable.getTableSource().getExpr().toString();
+
                 // 生成ALTER TABLE语句
                 StringBuilder alterTableSQL = new StringBuilder();
-
+                alterTableSQL.append("ALTER TABLE ").append(targetTableName).append(" ");
 
                 // 比较源表和目标表的列定义
-                List<SQLColumnDefinition> sourceCreateItems = sourceCreateTable.getColumnDefinitions();
-                List<SQLColumnDefinition> targetCreateItems = targetCreateTable.getColumnDefinitions();
+                List<SQLAlterTableItem> sourceAlterItems = sourceAlterTable.getItems();
+                List<SQLAlterTableItem> targetAlterItems = targetAlterTable.getItems();
 
-                for (SQLColumnDefinition sourceColumn : sourceCreateItems) {
-                    boolean columnExists = false;
+                for (SQLAlterTableItem targetAlterItem : targetAlterItems) {
+                    if (targetAlterItem instanceof SQLColumnDefinition) {
+                        SQLColumnDefinition targetColumn = (SQLColumnDefinition) targetAlterItem;
+                        boolean columnExists = false;
 
-                    for (SQLColumnDefinition targetColumn : targetCreateItems) {
-                        if (sourceColumn.getName().equals(targetColumn.getName())) {
-                            columnExists = true;
-                            break;
+                        for (SQLAlterTableItem sourceAlterItem : sourceAlterItems) {
+                            if (sourceAlterItem instanceof SQLColumnDefinition) {
+                                SQLColumnDefinition sourceColumn = (SQLColumnDefinition) sourceAlterItem;
+
+                                if (targetColumn.getName().equals(sourceColumn.getName())) {
+                                    columnExists = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (!columnExists) {
+                            // 添加新列
+                            alterTableSQL.append("ADD COLUMN ").append(targetColumn.toString()).append(",");
                         }
                     }
-
-                    if (!columnExists) {
-                        if (alterTableSQL.length() == 0){
-                            alterTableSQL.append("ALTER TABLE ").append(targetTableName).append(" ");
-                        }
-                        // 添加新列
-                        alterTableSQL.append("ADD COLUMN ").append(sourceColumn.toString()).append(",");
-                    }
-
                 }
 
                 // 移除源表中不存在的列
-                for (SQLColumnDefinition targetColumn : targetCreateItems) {
-                    boolean columnExists = false;
+                for (SQLAlterTableItem sourceAlterItem : sourceAlterItems) {
+                    if (sourceAlterItem instanceof SQLColumnDefinition) {
+                        SQLColumnDefinition sourceColumn = (SQLColumnDefinition) sourceAlterItem;
+                        boolean columnExists = false;
 
-                    for (SQLColumnDefinition sourceColumn : sourceCreateItems) {
-                        if (targetColumn.getName().equals(sourceColumn.getName())) {
-                            columnExists = true;
-                            break;
+                        for (SQLAlterTableItem targetAlterItem : targetAlterItems) {
+                            if (targetAlterItem instanceof SQLColumnDefinition) {
+                                SQLColumnDefinition targetColumn = (SQLColumnDefinition) targetAlterItem;
+
+                                if (sourceColumn.getName().equals(targetColumn.getName())) {
+                                    columnExists = true;
+                                    break;
+                                }
+                            }
                         }
-                    }
 
-                    if (!columnExists) {
-                        // 删除不存在的列
-                        alterTableSQL.append("DROP COLUMN ").append(targetColumn.getColumnName()).append(",");
+                        if (!columnExists) {
+                            // 删除不存在的列
+                            alterTableSQL.append("DROP COLUMN ").append(sourceColumn.getName()).append(",");
+                        }
                     }
                 }
 
                 // 移除末尾的逗号
-                if (alterTableSQL.length()>0&&alterTableSQL.charAt(alterTableSQL.length() - 1) == ',') {
+                if (alterTableSQL.charAt(alterTableSQL.length() - 1) == ',') {
                     alterTableSQL.deleteCharAt(alterTableSQL.length() - 1);
                 }
 
                 return alterTableSQL.toString();
-
             }
         }
 

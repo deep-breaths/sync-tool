@@ -1,4 +1,4 @@
-package test;
+package com.example.script.test;
 
 /**
  * @author albert lewis

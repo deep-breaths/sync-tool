@@ -1,0 +1,52 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:~/data/sync-tool;DB_CLOSE_DELAY=-1
+    username: sa
+    password: sa
+    # 开启这个配置就可以通过 web 页面访问了，例如：http://localhost:8080/springboot-h2/h2-console
+    h2:
+      console:
+        enabled: true
+        settings:
+          # 开启h2 console 跟踪 方便调试  默认 false
+          trace: true
+          # 允许console 远程访问 默认false
+          web-allow-others: true
+          # h2 访问路径上下文
+          path: /h2-console
+  sql:
+    init:
+      data-locations: classpath:db/data.sql
+      platform: h2
+      schema-locations: classpath:db/schema.sql
+      mode: always
+      continue-on-error: true
+# mybatis-plus 配置
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: com.example.script
+  global-config:
+    banner: false
+  #原生配置
+  configuration:
+    # 打印sql
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# 日志输出配置
+logging:
+  level:
+    root: INFO
+    org:
+      springframework:
+        security: WARN
+        web: ERROR
+  file:
+    path: ./logs
+    name: './logs/springboot-h2.log'
+  pattern:
+    file: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50}:%L - %msg%n'
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50}:%L - %msg%n'

@@ -1,4 +1,4 @@
-package test;
+package com.example.script.test;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;

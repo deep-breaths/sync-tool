@@ -29,7 +29,7 @@ import static com.example.script.constant.DBConstant.*;
  * @date 2023/12/26
  */
 @SpringBootTest
-public class ScriptApplicationTests {
+public class SyncToolApplicationTests {
 
     @Test
     void contextTest(){

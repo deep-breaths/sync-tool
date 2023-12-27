@@ -1,6 +1,8 @@
 package com.example.script.constant;
 
+import com.example.script.factory.DataBaseFactory;
 import com.example.script.factory.DataSourceFactory;
+import com.example.script.factory.SqlFileFactory;
 import com.example.script.utils.SpringUtils;
 
 import java.util.function.Function;
@@ -11,12 +13,11 @@ import java.util.function.Function;
  */
 public enum DataSourceTypeEnum {
     DATA_BASE(0, "数据库", (_) -> {
-//        SpringUtils.getBean()
-        return SpringUtils.getBean("db");
+        return SpringUtils.getBean(DataBaseFactory.class);
     }),
     SQL_FILE(1, "sql文件", (_) -> {
 
-        return SpringUtils.getBean("file");
+        return SpringUtils.getBean(SqlFileFactory.class);
     });
 
 

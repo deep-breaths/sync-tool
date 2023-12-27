@@ -5,12 +5,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ScriptApplication {
+public class SyncToolApplication {
 
     public static void main(String[] args) {
 
 
-        SpringApplication.run(ScriptApplication.class,args);
+        SpringApplication.run(SyncToolApplication.class, args);
 
     }
 

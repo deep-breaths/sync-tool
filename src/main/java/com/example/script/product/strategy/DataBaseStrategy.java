@@ -9,7 +9,11 @@ import java.util.Map;
  * @author albert lewis
  * @date 2023/12/27
  */
-public abstract class DataBaseStrategy {
+public abstract class DataBaseStrategy implements DataSourceStrategy {
+    private String name;
+
     public abstract Map<String, Map<String, List<String>>> toGetInitData(Connection sourceConn) throws SQLException;
+
+    public abstract String getName();
 
 }

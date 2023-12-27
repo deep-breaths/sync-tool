@@ -1,6 +1,7 @@
 package com.example.script.factory;
 
-import com.example.script.product.strategy.DataBaseStrategy;
+import com.example.script.product.strategy.DataSourceStrategy;
+import com.example.script.product.strategy.SqlFileStrategy;
 import com.example.script.utils.SpringUtils;
 import org.springframework.stereotype.Component;
 
@@ -9,15 +10,20 @@ import org.springframework.stereotype.Component;
  * @date 2023/12/27
  */
 @Component
-public class SqlFileFactory implements DataSourceFactory{
+public class SqlFileFactory implements DataSourceFactory {
     @Override
-    public DataBaseStrategy getDataSource(String dbType) {
-        String format=getName()+"_%s";
-        return SpringUtils.getBean(String.format(format, dbType));
-    }
+    public DataSourceStrategy getDataSource(String dbType) {
+        if (dbType == null || dbType.isEmpty()) {
+            return null;
+        }
+        String[] subBeanNames = SpringUtils.getSubBeanNames(SqlFileStrategy.class);
+        for (String subBeanName : subBeanNames) {
+            SqlFileStrategy sqlFileStrategy = SpringUtils.getBean(subBeanName, SqlFileStrategy.class);
+            if (dbType.equals(sqlFileStrategy.getName())) {
+                return sqlFileStrategy;
+            }
+        }
 
-    @Override
-    public String getName() {
-        return "file";
+        return null;
     }
 }

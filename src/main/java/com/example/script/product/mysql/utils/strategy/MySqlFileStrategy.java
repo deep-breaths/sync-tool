@@ -1,7 +1,7 @@
 package com.example.script.product.mysql.utils.strategy;
 
 import com.example.script.product.mysql.utils.DBUtils;
-import com.example.script.product.strategy.DataBaseStrategy;
+import com.example.script.product.strategy.SqlFileStrategy;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
@@ -15,9 +15,7 @@ import static com.example.script.constant.SQLSaveType.DML_INSERT;
  * @date 2023/12/27
  */
 @Component
-public class MySqlStrategy extends DataBaseStrategy {
-
-    @Override
+public class MySqlFileStrategy extends SqlFileStrategy {
     public Map<String, Map<String, List<String>>> toGetInitData(Connection sourceConn) throws SQLException {
         Map<String, Map<String, List<String>>> result = new HashMap<>();
         List<String> databases = DBUtils.getAllDatabases(sourceConn);

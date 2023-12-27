@@ -30,10 +30,10 @@
         </repository>
     </repositories>
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter</artifactId>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.boot</groupId>-->
+        <!--            <artifactId>spring-boot-starter</artifactId>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
@@ -66,11 +66,11 @@
             <artifactId>druid</artifactId>
             <version>${com.alibaba.druid.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.liquibase</groupId>-->
-<!--            <artifactId>liquibase-core</artifactId>-->
-<!--            <version>${org.liquibase.version}</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.liquibase</groupId>-->
+        <!--            <artifactId>liquibase-core</artifactId>-->
+        <!--            <version>${org.liquibase.version}</version>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jdbc</artifactId>
@@ -110,9 +110,55 @@
 
     <build>
         <plugins>
+<!--            <plugin>-->
+<!--                <groupId>org.graalvm.buildtools</groupId>-->
+<!--                <artifactId>native-maven-plugin</artifactId>-->
+<!--                <configuration>-->
+<!--                    &lt;!&ndash; imageName is used to set the name of the generated binary file &ndash;&gt;-->
+<!--                    <imageName>${project.artifactId}</imageName>-->
+<!--                    &lt;!&ndash; mainClass is used to specify the path to the main method class &ndash;&gt;-->
+<!--                    <mainClass>com.example.script.SyncToolApplication</mainClass>-->
+<!--                    <buildArgs>-->
+<!--                        &#45;&#45;no-fallback-->
+<!--                    </buildArgs>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>build-native</id>-->
+<!--                        <goals>-->
+<!--                            <goal>compile-no-fork</goal>-->
+<!--                        </goals>-->
+<!--                        <phase>package</phase>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
             <plugin>
                 <groupId>org.graalvm.buildtools</groupId>
                 <artifactId>native-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>build-native</id>
+                        <goals>
+                            <goal>compile-no-fork</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                    <execution>
+                        <id>test-native</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <phase>test</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>com.example.script.SyncToolApplication</mainClass>
+                    <imageName>native-app</imageName>
+                    <buildArgs>
+                        <buildArg>--verbose</buildArg>
+                    </buildArgs>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

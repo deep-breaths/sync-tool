@@ -1,4 +1,4 @@
-package com.example.script.utils;
+package com.example.script.product.mysql.utils;
 
 import com.alibaba.druid.pool.DruidDataSource;
 

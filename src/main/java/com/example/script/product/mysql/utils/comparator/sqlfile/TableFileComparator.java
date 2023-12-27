@@ -1,4 +1,4 @@
-package com.example.script.utils.comparator.sqlfile;
+package com.example.script.product.mysql.utils.comparator.sqlfile;
 
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.dialect.mysql.ast.MySqlKey;
@@ -12,9 +12,9 @@ import com.alibaba.druid.util.JdbcConstants;
 import com.example.script.constant.SQLSaveType;
 import com.example.script.domain.DiffDDL;
 import com.example.script.domain.TableKey;
-import com.example.script.utils.DBUtils;
+import com.example.script.product.mysql.utils.DBUtils;
 import com.example.script.utils.FileUtils;
-import com.example.script.utils.comparator.BuildSQL;
+import com.example.script.product.mysql.utils.comparator.BuildSQL;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;

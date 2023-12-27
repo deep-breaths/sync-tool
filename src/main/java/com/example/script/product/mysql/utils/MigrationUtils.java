@@ -1,4 +1,4 @@
-package com.example.script.utils;
+package com.example.script.product.mysql.utils;
 
 /**
  * @author albert lewis

@@ -19,7 +19,7 @@ spring:
           path: /h2-console
   sql:
     init:
-      data-locations: classpath:db/data.sql
+#      data-locations: classpath:db/data.sql
       platform: h2
       schema-locations: classpath:db/sync-tool.sql
       mode: always
@@ -61,7 +61,7 @@ springdoc:
   group-configs:
     - group: 'default'
       paths-to-match: '/**'
-      packages-to-scan: com.example.script.web
+      packages-to-scan: com.example.script.local.web
 # knife4j的增强配置，不需要增强可以不配
 knife4j:
   enable: true

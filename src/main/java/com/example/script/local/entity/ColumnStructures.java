@@ -3,6 +3,7 @@ package com.example.script.local.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -14,6 +15,7 @@ import java.io.Serializable;
  */
 @TableName(value = "column_structures")
 @Data
+@Builder
 public class ColumnStructures implements Serializable {
     /**
      *
@@ -44,7 +46,7 @@ public class ColumnStructures implements Serializable {
     /**
      * 长度
      */
-    private Double size;
+    private Long size;
 
     /**
      * 是否为null
@@ -54,7 +56,6 @@ public class ColumnStructures implements Serializable {
     /**
      * 默认值
      */
-    @TableField(value = "default")
     private String defaultValue;
 
     @TableField(exist = false)

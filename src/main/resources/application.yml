@@ -51,7 +51,7 @@ logging:
         web: ERROR
   file:
     path: ./logs
-    name: './logs/springboot-h2.log'
+    name: './logs/sync-tool.log'
   pattern:
     file: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50}:%L - %msg%n'
     console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50}:%L - %msg%n'

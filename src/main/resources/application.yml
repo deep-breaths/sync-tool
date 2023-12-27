@@ -21,7 +21,7 @@ spring:
     init:
       data-locations: classpath:db/data.sql
       platform: h2
-      schema-locations: classpath:db/schema.sql
+      schema-locations: classpath:db/sync-tool.sql
       mode: always
       continue-on-error: true
 # mybatis-plus 配置

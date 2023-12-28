@@ -60,11 +60,12 @@ public class SyncTable implements Serializable {
 
     /**
      * 表类型，table、view
-     *
+     */
     private String type;
 
     /**
      * 主键
+     */
     private String pk;
 
     /**

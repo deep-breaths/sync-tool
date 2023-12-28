@@ -4,6 +4,7 @@ import com.example.script.factory.DataBaseFactory;
 import com.example.script.factory.DataSourceFactory;
 import com.example.script.factory.SqlFileFactory;
 import com.example.script.utils.SpringUtils;
+import lombok.Getter;
 
 import java.util.function.Supplier;
 
@@ -11,6 +12,7 @@ import java.util.function.Supplier;
  * @author albert lewis
  * @date 2023/12/27
  */
+@Getter
 public enum DataSourceTypeEnum {
     DATA_BASE(0, "数据库", () -> {
         return SpringUtils.getBean(DataBaseFactory.class);
@@ -21,9 +23,9 @@ public enum DataSourceTypeEnum {
     });
 
 
-    private Integer code;
-    private String desc;
-    private Supplier<DataSourceFactory> factory;
+    private final Integer code;
+    private final String desc;
+    private final Supplier<DataSourceFactory> factory;
 
     DataSourceTypeEnum(Integer code, String desc, Supplier<DataSourceFactory> factory) {
         this.code = code;
@@ -36,7 +38,7 @@ public enum DataSourceTypeEnum {
         if (actionType != null) {
             return actionType.factory.get();
         } else {
-            throw new RuntimeException("不支持该查询");
+            throw new RuntimeException("不支持该类型");
         }
     }
 

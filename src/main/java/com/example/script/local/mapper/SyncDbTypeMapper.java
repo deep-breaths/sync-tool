@@ -3,6 +3,7 @@ package com.example.script.local.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.script.local.entity.SyncDbType;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
 * @author admin
@@ -10,6 +11,7 @@ import com.example.script.local.entity.SyncDbType;
 * @createDate 2023-12-28 10:27:13
 * @Entity generator.entity.SyncDbType
 */
+@Mapper
 public interface SyncDbTypeMapper extends BaseMapper<SyncDbType> {
 
 }

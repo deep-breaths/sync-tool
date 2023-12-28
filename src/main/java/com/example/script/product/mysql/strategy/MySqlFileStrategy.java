@@ -1,7 +1,8 @@
-package com.example.script.product.mysql.utils.strategy;
+package com.example.script.product.mysql.strategy;
 
-import com.example.script.product.mysql.utils.DBUtils;
-import com.example.script.product.strategy.DataBaseStrategy;
+import com.example.script.product.mysql.DBUtils;
+import com.example.script.common.strategy.SqlFileStrategy;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
@@ -15,9 +16,19 @@ import static com.example.script.constant.SQLSaveType.DML_INSERT;
  * @date 2023/12/27
  */
 @Component
-public class MySqlStrategy extends DataBaseStrategy {
+@Scope("prototype")
+public class MySqlFileStrategy extends SqlFileStrategy {
+    @Override
+    public String getName() {
+        return "mysql";
+    }
 
     @Override
+    public void createDataSource(String url, String username, String password) {
+
+    }
+
+
     public Map<String, Map<String, List<String>>> toGetInitData(Connection sourceConn) throws SQLException {
         Map<String, Map<String, List<String>>> result = new HashMap<>();
         List<String> databases = DBUtils.getAllDatabases(sourceConn);
@@ -36,10 +47,7 @@ public class MySqlStrategy extends DataBaseStrategy {
         return result;
     }
 
-    @Override
-    public String getName() {
-        return "mysql";
-    }
+
 
     List<String> getAllDatabases(Connection conn) throws SQLException {
 

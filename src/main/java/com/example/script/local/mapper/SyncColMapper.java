@@ -3,6 +3,7 @@ package com.example.script.local.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.script.local.entity.SyncCol;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
 * @author admin
@@ -10,6 +11,7 @@ import com.example.script.local.entity.SyncCol;
 * @createDate 2023-12-28 10:27:12
 * @Entity generator.entity.SyncCol
 */
+@Mapper
 public interface SyncColMapper extends BaseMapper<SyncCol> {
 
 }

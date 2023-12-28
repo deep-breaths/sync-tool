@@ -1,8 +1,8 @@
 package com.example.script.constant;
 
-import com.example.script.factory.DataBaseFactory;
-import com.example.script.factory.DataSourceFactory;
-import com.example.script.factory.SqlFileFactory;
+import com.example.script.common.factory.DataBaseFactory;
+import com.example.script.common.factory.DataSourceFactory;
+import com.example.script.common.factory.SqlFileFactory;
 import com.example.script.utils.SpringUtils;
 import lombok.Getter;
 

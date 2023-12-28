@@ -1,6 +1,6 @@
-package com.example.script.factory;
+package com.example.script.common.factory;
 
-import com.example.script.product.strategy.DataSourceStrategy;
+import com.example.script.common.strategy.DataSourceStrategy;
 
 /**
  * @author albert lewis

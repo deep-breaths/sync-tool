@@ -3,6 +3,7 @@ package com.example.script.local.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.script.local.entity.SyncVersion;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
 * @author admin
@@ -10,6 +11,7 @@ import com.example.script.local.entity.SyncVersion;
 * @createDate 2023-12-28 10:27:13
 * @Entity generator.entity.SyncVersion
 */
+@Mapper
 public interface SyncVersionMapper extends BaseMapper<SyncVersion> {
 
 }

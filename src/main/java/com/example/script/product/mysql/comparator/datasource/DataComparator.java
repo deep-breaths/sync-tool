@@ -1,11 +1,11 @@
-package com.example.script.product.mysql.utils.comparator.datasource;
+package com.example.script.product.mysql.comparator.datasource;
 
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.druid.util.JdbcConstants;
-import com.example.script.product.mysql.utils.DBUtils;
-import com.example.script.product.mysql.utils.comparator.BuildSQL;
+import com.example.script.product.mysql.DBUtils;
+import com.example.script.product.mysql.comparator.BuildSQL;
 
 import java.sql.*;
 import java.util.*;

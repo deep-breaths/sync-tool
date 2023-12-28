@@ -10,9 +10,10 @@ import java.util.Date;
 
 /**
  * 数据库版本
+ *
  * @TableName sync_version
  */
-@TableName(value ="sync_version")
+@TableName(value = "sync_version")
 @Data
 public class SyncVersion implements Serializable {
     /**
@@ -24,7 +25,7 @@ public class SyncVersion implements Serializable {
     /**
      * 外键，DatabaseConnections
      */
-    private Long connectionId;
+    private Long connId;
 
     /**
      * 版本号
@@ -34,7 +35,7 @@ public class SyncVersion implements Serializable {
     /**
      * 版本描述
      */
-        private String remarks;
+    private String remarks;
 
     /**
      * 创建时间

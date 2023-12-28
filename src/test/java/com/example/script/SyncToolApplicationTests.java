@@ -5,21 +5,23 @@ import com.example.script.constant.FolderType;
 import com.example.script.constant.SQLSaveType;
 import com.example.script.domain.DiffDDL;
 import com.example.script.product.mysql.DBUtils;
-import com.example.script.utils.FileUtils;
 import com.example.script.product.mysql.MigrationUtils;
 import com.example.script.product.mysql.comparator.datasource.DataComparator;
 import com.example.script.product.mysql.comparator.datasource.TableComparator;
 import com.example.script.product.mysql.comparator.sqlfile.DataFileComparator;
 import com.example.script.product.mysql.comparator.sqlfile.TableFileComparator;
+import com.example.script.utils.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.StopWatch;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.management.ManagementFactory;
+import java.net.*;
 import java.sql.Connection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.example.script.constant.DBConstant.*;
@@ -32,7 +34,7 @@ import static com.example.script.constant.DBConstant.*;
 public class SyncToolApplicationTests {
 
     @Test
-    void contextTest(){
+    void contextTest() {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start("计时");
         getSQL();
@@ -42,7 +44,8 @@ public class SyncToolApplicationTests {
         stopWatch.stop();
         System.out.println(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
     }
-    private static void getSQLBySourceFile(){
+
+    private static void getSQLBySourceFile() {
 
         try (DruidDataSource targetDataSource = DBUtils.createDataSource(TARGET_URL, TARGET_USERNAME, TARGET_PASSWORD)) {
             Connection targetConn = targetDataSource.getConnection();
@@ -123,4 +126,97 @@ public class SyncToolApplicationTests {
             e.printStackTrace();
         }
     }
+
+    @Test
+    void getCurrentProcess() throws Exception {
+        // 获取当前进程ID
+        String processId = getProcessId();
+        System.out.println("Process ID: " + processId);
+
+        // 获取本地端口和IP地址
+        InetSocketAddress socketAddress = getLocalSocketAddress();
+        String ipAddress = socketAddress.getAddress().getHostAddress();
+        int port = socketAddress.getPort();
+        System.out.println("IP Address: " + ipAddress);
+        System.out.println("Port: " + port);
+        getAllAddress();
+        getProcess();
+    }
+
+    private static String getProcessId() {
+        String processName = ManagementFactory.getRuntimeMXBean().getName();
+        return processName.split("@")[0];
+    }
+
+    private static InetSocketAddress getLocalSocketAddress() {
+        try {
+            // 创建一个临时Socket以获取本地地址
+            InetAddress localhost = InetAddress.getByName("localhost");
+            try (java.net.Socket socket = new java.net.Socket()) {
+                socket.bind(new InetSocketAddress(localhost, 0));
+                return (InetSocketAddress) socket.getLocalSocketAddress();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void getAllAddress() {
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface networkInterface = interfaces.nextElement();
+                if (networkInterface.isLoopback() || !networkInterface.isUp()) {
+                    continue; // 跳过回环接口和未启用的接口
+                }
+
+                Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress address = addresses.nextElement();
+                    if (address instanceof Inet4Address) {
+                        System.out.println("IPv4 Address: " + address.getHostAddress());
+                    } else if (address instanceof Inet6Address) {
+                        System.out.println("IPv6 Address: " + address.getHostAddress());
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    void getProcess() throws Exception {
+        String targetProcessName = "TargetProcessName"; // 目标进程名称
+
+        try {
+            // 执行 jps 命令
+            Process process = Runtime.getRuntime().exec("jps -l");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+//                if (line.contains(targetProcessName)) {
+                // 解析输出，获取进程 ID
+                String[] tokens = line.split(" ");
+                String processId = tokens[0];
+                String processName = "";
+                if (tokens.length > 1) {
+                    processName = tokens[1];
+                }
+
+                System.out.println("Process ID: " + processId + "    ," + processName);
+//                    break;
+//                }
+            }
+
+            reader.close();
+            process.destroy();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }

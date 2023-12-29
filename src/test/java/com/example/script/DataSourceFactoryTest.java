@@ -34,15 +34,27 @@ public class DataSourceFactoryTest {
         DataSourceFactory dataSourceFactory = DataSourceTypeEnum.toGetFactory(0);
         DataSourceStrategy dataSourceStrategy = dataSourceFactory.getDataSource(JdbcConstants.MYSQL.name());
         dataSourceStrategy.createDataSource(SOURCE_URL, SOURCE_USERNAME, SOURCE_PASSWORD);
-        DataSourceStrategy dataSourceStrategy2 = dataSourceFactory.getDataSource(JdbcConstants.MYSQL.name());
-        dataSourceStrategy2.createDataSource(TARGET_URL, TARGET_USERNAME, TARGET_PASSWORD);
-//        dataSourceStrategy.closeConn();
-        dataSourceStrategy2.closeConn();
-        DataSourceFactory dataSourceFactory1 = DataSourceTypeEnum.toGetFactory(1);
-        DataSourceStrategy dataSourceStrategy1 = dataSourceFactory1.getDataSource(JdbcConstants.MYSQL.name());
-        System.out.println(dataSourceStrategy1);
-        Map<String, Map<String, List<String>>> getInitData = dataSourceStrategy.toGetInitData();
-        getInitData.forEach((key, vallue)-> System.out.println(key+" >>>>>>>  "+vallue));
+//        DataSourceStrategy dataSourceStrategy2 = dataSourceFactory.getDataSource(JdbcConstants.MYSQL.name());
+//        dataSourceStrategy2.createDataSource(TARGET_URL, TARGET_USERNAME, TARGET_PASSWORD);
+////        dataSourceStrategy.closeConn();
+//        dataSourceStrategy2.closeConn();
+//        DataSourceFactory dataSourceFactory1 = DataSourceTypeEnum.toGetFactory(1);
+//        DataSourceStrategy dataSourceStrategy1 = dataSourceFactory1.getDataSource(JdbcConstants.MYSQL.name());
+//        System.out.println(dataSourceStrategy1);
+        Map<String, Map<String, List<String>>> getInitData = dataSourceStrategy.toGetData();
+        List<String> allDatabases = dataSourceStrategy.getAllDatabases();
+        Map<String, List<String>> tableNames = dataSourceStrategy.getTableNames();
+        allDatabases.forEach(System.out::println);
+        String catalog = dataSourceStrategy.getCatalog();
+        List<String> tableNamesByCatalog = dataSourceStrategy.getTableNamesByCatalog();
+        List<String> tableNames1 = dataSourceStrategy.getTableNames("biz-center");
+        Map<String, List<Map<String, Object>>> getDataByCatalog = dataSourceStrategy.toGetDataByCatalog();
+        tableNames.forEach((key, value)-> System.out.println(key+" >>>>>>>  "+value));
+        getInitData.forEach((key, value)-> System.out.println(key+" >>>>>>>  "+value));
+    }
+
+    public void format(Map<String, Map<String, List<String>>> getInitData){
+
     }
 
     @Autowired

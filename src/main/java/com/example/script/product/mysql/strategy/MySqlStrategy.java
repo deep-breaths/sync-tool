@@ -23,16 +23,12 @@ public class MySqlStrategy extends DataBaseStrategy {
         return "mysql";
     }
 
-    @Override
-    public void createDataSource(String url, String username, String password) throws SQLException {
-        super.createDataSource(url, username, password);
-    }
 
     @Override
-    public Map<String, Map<String, List<String>>> toGetInitData() throws SQLException {
-        Connection sourceConn=super.getConn();
+    public Map<String, Map<String, List<String>>> toGetData() throws SQLException {
+        Connection sourceConn = super.getConn();
         Map<String, Map<String, List<String>>> result = new HashMap<>();
-        List<String> databases = super.getAllDatabases(sourceConn);
+        List<String> databases = super.getAllDatabases(sourceConn, sourceConn.getCatalog());
         for (String database : databases) {
             List<String> createTableStatements = generateCreateTableStatements(sourceConn, database);
             List<String> insertDataStatements = generateInsertDataStatements(sourceConn, database);
@@ -48,25 +44,37 @@ public class MySqlStrategy extends DataBaseStrategy {
         return result;
     }
 
-
     @Override
-    public List<String> getAllDatabases(Connection conn) throws SQLException {
+    public Map<String, List<Map<String, Object>>> toGetDataByCatalog() throws SQLException {
+        List<String> tableNames = getTableNamesByCatalog();
+        Map<String, List<Map<String, Object>>> allTableData = new HashMap<>();
+        for (String tableName : tableNames) {
+            List<Map<String, Object>> rows = toGetDataByTable(tableName);
 
-        List<String> databases = new ArrayList<>();
-        if (conn.getCatalog() != null && !conn.getCatalog().isEmpty()) {
-            databases.add(conn.getCatalog());
-            return databases;
-        }
-        ResultSet rs = conn.getMetaData().getCatalogs();
+            allTableData.put(tableName, rows);
 
-        while (rs.next()) {
-            databases.add(rs.getString(1));
         }
 
-        rs.close();
-        return databases;
+        return allTableData;
     }
-
+    @Override
+    public List<Map<String, Object>> toGetDataByTable(String tableName) throws SQLException {
+        List<Map<String, Object>> rows = new ArrayList<>();
+        ResultSet dataResultSet = super
+                .getConn()
+                .createStatement()
+                .executeQuery(String.format("SELECT * FROM `%s`", tableName));
+        ResultSetMetaData resultSetMetaData = dataResultSet.getMetaData();
+        int columnCount = resultSetMetaData.getColumnCount();
+        while (dataResultSet.next()) {
+            Map<String, Object> row = new HashMap<>();
+            for (int i = 1; i <= columnCount; i++) {
+                row.put(resultSetMetaData.getColumnName(i), dataResultSet.getObject(i));
+            }
+            rows.add(row);
+        }
+        return rows;
+    }
 
     @Override
     public Map<String, Set<String>> getPrimaryOrUniqueKeys(Connection conn, String databaseName, String tableName) throws SQLException {

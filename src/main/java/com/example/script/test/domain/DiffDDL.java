@@ -1,4 +1,4 @@
-package com.example.script.domain;
+package com.example.script.test.domain;
 
 import java.util.List;
 import java.util.Map;

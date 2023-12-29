@@ -1,4 +1,4 @@
-package com.example.script.constant;
+package com.example.script.test.constant;
 
 /**
  * @author albert lewis

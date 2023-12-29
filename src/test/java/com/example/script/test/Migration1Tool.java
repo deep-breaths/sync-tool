@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.script.constant.DBConstant.*;
+import static com.example.script.test.constant.DBConstant.*;
 
 public class Migration1Tool {
     public static void main(String[] args) throws Exception {

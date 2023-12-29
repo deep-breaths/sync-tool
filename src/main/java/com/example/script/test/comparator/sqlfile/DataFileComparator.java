@@ -1,4 +1,4 @@
-package com.example.script.product.mysql.comparator.sqlfile;
+package com.example.script.test.comparator.sqlfile;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLStatement;
@@ -7,18 +7,18 @@ import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlExportParameterVisitor;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.druid.util.JdbcConstants;
-import com.example.script.constant.SQLSaveType;
-import com.example.script.domain.DiffDDL;
-import com.example.script.domain.FetchData;
-import com.example.script.product.mysql.comparator.BuildSQL;
-import com.example.script.product.mysql.comparator.datasource.DataComparator;
-import com.example.script.utils.FileUtils;
+import com.example.script.test.comparator.datasource.DataComparator;
+import com.example.script.test.constant.SQLSaveType;
+import com.example.script.test.domain.DiffDDL;
+import com.example.script.test.domain.FetchData;
+import com.example.script.test.comparator.BuildSQL;
+import com.example.script.test.utils.FileUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 
-import static com.example.script.constant.SQLSaveType.*;
+import static com.example.script.test.constant.SQLSaveType.*;
 
 /**
  * @author albert lewis

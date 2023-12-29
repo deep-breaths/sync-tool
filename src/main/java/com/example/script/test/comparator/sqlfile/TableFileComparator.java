@@ -1,4 +1,4 @@
-package com.example.script.product.mysql.comparator.sqlfile;
+package com.example.script.test.comparator.sqlfile;
 
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.dialect.mysql.ast.MySqlKey;
@@ -9,12 +9,12 @@ import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.druid.util.JdbcConstants;
-import com.example.script.constant.SQLSaveType;
-import com.example.script.domain.DiffDDL;
-import com.example.script.domain.TableKey;
-import com.example.script.product.mysql.DBUtils;
-import com.example.script.product.mysql.comparator.BuildSQL;
-import com.example.script.utils.FileUtils;
+import com.example.script.test.constant.SQLSaveType;
+import com.example.script.test.domain.DiffDDL;
+import com.example.script.test.domain.TableKey;
+import com.example.script.test.utils.DBUtils;
+import com.example.script.test.comparator.BuildSQL;
+import com.example.script.test.utils.FileUtils;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -22,7 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-import static com.example.script.constant.SQLSaveType.DIFF_TABLE;
+import static com.example.script.test.constant.SQLSaveType.DIFF_TABLE;
 
 /**
  * @author albert lewis

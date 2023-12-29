@@ -1,4 +1,4 @@
-package com.example.script.product.mysql;
+package com.example.script.test.utils;
 
 /**
  * @author albert lewis
@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.script.constant.SQLSaveType.DDL_CREATE;
-import static com.example.script.constant.SQLSaveType.DML_INSERT;
+import static com.example.script.test.constant.SQLSaveType.DDL_CREATE;
+import static com.example.script.test.constant.SQLSaveType.DML_INSERT;
 
 public class MigrationUtils {
 

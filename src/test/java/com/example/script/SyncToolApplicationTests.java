@@ -1,16 +1,16 @@
 package com.example.script;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.example.script.constant.FolderType;
-import com.example.script.constant.SQLSaveType;
-import com.example.script.domain.DiffDDL;
-import com.example.script.product.mysql.DBUtils;
-import com.example.script.product.mysql.MigrationUtils;
-import com.example.script.product.mysql.comparator.datasource.DataComparator;
-import com.example.script.product.mysql.comparator.datasource.TableComparator;
-import com.example.script.product.mysql.comparator.sqlfile.DataFileComparator;
-import com.example.script.product.mysql.comparator.sqlfile.TableFileComparator;
-import com.example.script.utils.FileUtils;
+import com.example.script.test.constant.FolderType;
+import com.example.script.test.constant.SQLSaveType;
+import com.example.script.test.domain.DiffDDL;
+import com.example.script.test.utils.DBUtils;
+import com.example.script.test.utils.MigrationUtils;
+import com.example.script.test.comparator.datasource.DataComparator;
+import com.example.script.test.comparator.datasource.TableComparator;
+import com.example.script.test.comparator.sqlfile.DataFileComparator;
+import com.example.script.test.comparator.sqlfile.TableFileComparator;
+import com.example.script.test.utils.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.StopWatch;
@@ -24,7 +24,7 @@ import java.sql.Connection;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.example.script.constant.DBConstant.*;
+import static com.example.script.test.constant.DBConstant.*;
 
 /**
  * @author albert lewis

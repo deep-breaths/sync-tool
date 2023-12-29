@@ -1,4 +1,4 @@
-package com.example.script.product.mysql.comparator;
+package com.example.script.test.comparator;
 
 import com.alibaba.druid.sql.ast.SQLIndexDefinition;
 import com.alibaba.druid.sql.ast.SQLStatement;
@@ -8,7 +8,7 @@ import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlCreateTableStateme
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.druid.util.JdbcConstants;
-import com.example.script.product.mysql.DBUtils;
+import com.example.script.test.utils.DBUtils;
 
 import java.util.ArrayList;
 import java.util.List;

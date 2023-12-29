@@ -1,4 +1,4 @@
-package com.example.script.product.mysql;
+package com.example.script.test.utils;
 
 import com.alibaba.druid.pool.DruidDataSource;
 
@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.example.script.constant.DBConstant.DRIVER_CLASS_NAME;
+import static com.example.script.test.constant.DBConstant.DRIVER_CLASS_NAME;
 
 /**
  * @author albert lewis

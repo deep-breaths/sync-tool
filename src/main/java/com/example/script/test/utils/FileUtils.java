@@ -1,7 +1,7 @@
-package com.example.script.utils;
+package com.example.script.test.utils;
 
-import com.example.script.constant.FolderType;
-import com.example.script.functions.TriConsumer;
+import com.example.script.test.constant.FolderType;
+import com.example.script.test.functions.TriConsumer;
 
 import java.io.IOException;
 import java.nio.file.Files;

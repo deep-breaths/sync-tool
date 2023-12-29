@@ -1,4 +1,4 @@
-package com.example.script.functions;
+package com.example.script.test.functions;
 
 /**
  * @author albert lewis

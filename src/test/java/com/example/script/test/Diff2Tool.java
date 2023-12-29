@@ -10,7 +10,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.script.constant.DBConstant.*;
+import static com.example.script.test.constant.DBConstant.*;
 
 /**
  * @author albert lewis

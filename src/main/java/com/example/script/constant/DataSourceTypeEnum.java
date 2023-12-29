@@ -3,7 +3,7 @@ package com.example.script.constant;
 import com.example.script.common.factory.DataBaseFactory;
 import com.example.script.common.factory.DataSourceFactory;
 import com.example.script.common.factory.SqlFileFactory;
-import com.example.script.utils.SpringUtils;
+import com.example.script.test.utils.SpringUtils;
 import lombok.Getter;
 
 import java.util.function.Supplier;

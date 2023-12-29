@@ -1,6 +1,7 @@
 package com.example.script;
 
 import com.alibaba.druid.util.JdbcConstants;
+import com.example.script.common.domain.TableKey;
 import com.example.script.common.expression.Context;
 import com.example.script.common.expression.DataTableExpression;
 import com.example.script.common.expression.RuleExpression;
@@ -13,14 +14,16 @@ import com.example.script.local.service.SyncColService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.util.StopWatch;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import static com.example.script.constant.DBConstant.*;
+import static com.example.script.test.constant.DBConstant.*;
 
 /**
  * @author albert lewis
@@ -31,6 +34,14 @@ public class DataSourceFactoryTest {
 
     @Test
     void context() throws SQLException {
+        StopWatch stopWatch=new StopWatch();
+        stopWatch.start("耗时");
+        getDbData();
+        stopWatch.stop();
+        System.out.println(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
+    }
+
+    private static void getDbData() throws SQLException {
         DataSourceFactory dataSourceFactory = DataSourceTypeEnum.toGetFactory(0);
         DataSourceStrategy dataSourceStrategy = dataSourceFactory.getDataSource(JdbcConstants.MYSQL.name());
         dataSourceStrategy.createDataSource(SOURCE_URL, SOURCE_USERNAME, SOURCE_PASSWORD);
@@ -41,7 +52,7 @@ public class DataSourceFactoryTest {
 //        DataSourceFactory dataSourceFactory1 = DataSourceTypeEnum.toGetFactory(1);
 //        DataSourceStrategy dataSourceStrategy1 = dataSourceFactory1.getDataSource(JdbcConstants.MYSQL.name());
 //        System.out.println(dataSourceStrategy1);
-        Map<String, Map<String, List<String>>> getInitData = dataSourceStrategy.toGetData();
+        Map<String, Map<String, List<Map<String, Object>>>> getInitData = dataSourceStrategy.toGetData();
         List<String> allDatabases = dataSourceStrategy.getAllDatabases();
         Map<String, List<String>> tableNames = dataSourceStrategy.getTableNames();
         allDatabases.forEach(System.out::println);
@@ -49,6 +60,8 @@ public class DataSourceFactoryTest {
         List<String> tableNamesByCatalog = dataSourceStrategy.getTableNamesByCatalog();
         List<String> tableNames1 = dataSourceStrategy.getTableNames("biz-center");
         Map<String, List<Map<String, Object>>> getDataByCatalog = dataSourceStrategy.toGetDataByCatalog();
+        Map<String, List<String>> tableStructure = dataSourceStrategy.getTableStructure();
+        Map<String, Map<String, TableKey>> allPrimaryOrUniqueKeys = dataSourceStrategy.getAllPrimaryOrUniqueKeys();
         tableNames.forEach((key, value)-> System.out.println(key+" >>>>>>>  "+value));
         getInitData.forEach((key, value)-> System.out.println(key+" >>>>>>>  "+value));
     }

@@ -1,7 +1,7 @@
-package com.example.script.product.mysql.comparator.datasource;
+package com.example.script.test.comparator.datasource;
 
-import com.example.script.product.mysql.DBUtils;
-import com.example.script.product.mysql.comparator.BuildSQL;
+import com.example.script.test.utils.DBUtils;
+import com.example.script.test.comparator.BuildSQL;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.script.constant.SQLSaveType.DIFF_TABLE;
+import static com.example.script.test.constant.SQLSaveType.DIFF_TABLE;
 
 /**
  * @author albert lewis

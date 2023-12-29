@@ -1,16 +1,16 @@
-package com.example.script.product.mysql.comparator.datasource;
+package com.example.script.test.comparator.datasource;
 
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.druid.util.JdbcConstants;
-import com.example.script.product.mysql.DBUtils;
-import com.example.script.product.mysql.comparator.BuildSQL;
+import com.example.script.test.utils.DBUtils;
+import com.example.script.test.comparator.BuildSQL;
 
 import java.sql.*;
 import java.util.*;
 
-import static com.example.script.constant.SQLSaveType.*;
+import static com.example.script.test.constant.SQLSaveType.*;
 
 /**
  * @author albert lewis

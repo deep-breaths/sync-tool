@@ -1,4 +1,4 @@
-package com.example.script.utils;
+package com.example.script.test.utils;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;

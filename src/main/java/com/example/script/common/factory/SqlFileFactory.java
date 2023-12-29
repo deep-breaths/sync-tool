@@ -2,7 +2,7 @@ package com.example.script.common.factory;
 
 import com.example.script.common.strategy.DataSourceStrategy;
 import com.example.script.common.strategy.SqlFileStrategy;
-import com.example.script.utils.SpringUtils;
+import com.example.script.test.utils.SpringUtils;
 import org.springframework.stereotype.Component;
 
 /**

@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.script.constant.DBConstant.*;
+import static com.example.script.test.constant.DBConstant.*;
 
 public class Migration2Tool {
 

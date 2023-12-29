@@ -1,15 +1,12 @@
 package com.example.script.product.mysql.strategy;
 
-import com.example.script.product.mysql.DBUtils;
 import com.example.script.common.strategy.SqlFileStrategy;
+import com.example.script.product.mysql.DBUtils;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.*;
-
-import static com.example.script.constant.SQLSaveType.DDL_CREATE;
-import static com.example.script.constant.SQLSaveType.DML_INSERT;
 
 /**
  * @author albert lewis
@@ -29,19 +26,20 @@ public class MySqlFileStrategy extends SqlFileStrategy {
     }
 
 
-    public Map<String, Map<String, List<String>>> toGetInitData(Connection sourceConn) throws SQLException {
+    public Map<String, Map<String, List<String>>> toGetInitData() throws SQLException {
+
         Map<String, Map<String, List<String>>> result = new HashMap<>();
-        List<String> databases = DBUtils.getAllDatabases(sourceConn);
-        for (String database : databases) {
-            List<String> createTableStatements = generateCreateTableStatements(sourceConn, database);
-            List<String> insertDataStatements = generateInsertDataStatements(sourceConn, database);
-            if (!createTableStatements.isEmpty()) {
-                result.put(DDL_CREATE, Map.of(database, createTableStatements));
-            }
-            if (!insertDataStatements.isEmpty()) {
-                result.put(DML_INSERT, Map.of(database, insertDataStatements));
-            }
-        }
+//        List<String> databases = DBUtils.getAllDatabases(sourceConn);
+//        for (String database : databases) {
+//            List<String> createTableStatements = generateCreateTableStatements(sourceConn, database);
+//            List<String> insertDataStatements = generateInsertDataStatements(sourceConn, database);
+//            if (!createTableStatements.isEmpty()) {
+//                result.put(DDL_CREATE, Map.of(database, createTableStatements));
+//            }
+//            if (!insertDataStatements.isEmpty()) {
+//                result.put(DML_INSERT, Map.of(database, insertDataStatements));
+//            }
+//        }
 
 
         return result;

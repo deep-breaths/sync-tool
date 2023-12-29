@@ -30,7 +30,8 @@ public class PGSqlStrategy extends DataBaseStrategy {
     }
 
     @Override
-    public Map<String, Map<String, List<String>>> toGetInitData(Connection sourceConn) throws SQLException {
+    public Map<String, Map<String, List<String>>> toGetInitData() throws SQLException {
+        Connection sourceConn=super.getConn();
         Map<String, Map<String, List<String>>> result = new HashMap<>();
         List<String> databases = super.getAllDatabases(sourceConn);
         for (String database : databases) {

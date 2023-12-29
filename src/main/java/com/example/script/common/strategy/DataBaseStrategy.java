@@ -1,6 +1,7 @@
 package com.example.script.common.strategy;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import lombok.Getter;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -17,11 +18,12 @@ import static com.example.script.constant.DBConstant.DRIVER_CLASS_NAME;
  * @author albert lewis
  * @date 2023/12/27
  */
+@Getter
 public abstract class DataBaseStrategy implements DataSourceStrategy {
     private Connection conn;
     private DataSource dataSource;
 
-    public abstract Map<String, Map<String, List<String>>> toGetInitData(Connection sourceConn) throws SQLException;
+    public abstract Map<String, Map<String, List<String>>> toGetInitData() throws SQLException;
 
     public abstract String getName();
 

@@ -34,7 +34,7 @@ public class TableInfo {
      */
     private Set<TableFK> fkList;
 
-    private Set<TableColumn> columns;
+    private Set<TableColumn> columnInfoList;
 
     /**
      * 建表语句

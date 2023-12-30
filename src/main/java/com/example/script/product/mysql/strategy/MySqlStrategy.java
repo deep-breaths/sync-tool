@@ -86,7 +86,7 @@ public class MySqlStrategy extends DataBaseStrategy {
             Set<String> pkList = new LinkedHashSet<>();
             Set<TableIndex> indexList =new LinkedHashSet<>();
             Set<TableFK> fkList =new LinkedHashSet<>();
-            Set<TableColumn> columns =new LinkedHashSet<>();
+            Set<TableColumn> columnInfoList =new LinkedHashSet<>();
             for (int i = 0; i < tableElementList.size(); i++) {
                 SQLTableElement sqlTableElement = tableElementList.get(i);
                 if (sqlTableElement instanceof SQLColumnDefinition tableElement) {
@@ -106,7 +106,7 @@ public class MySqlStrategy extends DataBaseStrategy {
                     tableColumn.setSize(dataType.getArguments().isEmpty() ? null :
                                                 Long.valueOf(dataType.getArguments().getFirst().toString()));
                     tableColumn.setName(replace(tableElement.getColumnName()));
-                    columns.add(tableColumn);
+                    columnInfoList.add(tableColumn);
 
 
                 } else if (sqlTableElement instanceof MysqlForeignKey tableElement) {
@@ -157,7 +157,7 @@ public class MySqlStrategy extends DataBaseStrategy {
             tableInfo.setFkList(fkList);
             tableInfo.setPkList(pkList);
             tableInfo.setIndexList(indexList);
-            tableInfo.setColumns(columns);
+            tableInfo.setColumnInfoList(columnInfoList);
             List<String> tableOptions = createTableStatement.getTableOptions().stream().map(x -> String.format("%s = %s",
                                                                                                        x.getTarget().toString(), x.getValue().toString()
             )).toList();

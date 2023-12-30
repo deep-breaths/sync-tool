@@ -1,5 +1,6 @@
 package com.example.script.common.strategy;
 
+import com.example.script.common.domain.TableInfo;
 import com.example.script.common.domain.TableKey;
 
 import java.sql.SQLException;
@@ -38,4 +39,8 @@ public interface DataSourceStrategy {
     Map<String,Map<String, TableKey>> getAllPrimaryOrUniqueKeys() throws SQLException;
 
     Map<String,TableKey> getPrimaryOrUniqueKeysByDataBase(String databaseName) throws SQLException;
+
+    Map<String,Map<String, TableInfo>> getAllTableInfo() throws SQLException;
+
+    Map<String,TableInfo> getTableInfo(String databaseName) throws SQLException;
 }

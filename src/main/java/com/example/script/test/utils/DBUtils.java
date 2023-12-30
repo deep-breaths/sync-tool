@@ -115,16 +115,21 @@ public class DBUtils {
 
 
     public static String convertJavaType(Object value) {
-        if (value == null) {
-            return null;
-        } else if (value instanceof String) {
-            return STR."'\{value}'";
-        } else if (value instanceof Timestamp) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-            String formattedTimestamp = ((Timestamp) value).toLocalDateTime().format(formatter);
-            return STR."'\{formattedTimestamp}'";
-        } else {
-            return value.toString();
+        switch (value) {
+            case null -> {
+                return null;
+            }
+            case String s -> {
+                return STR."'\{value}'";
+            }
+            case Timestamp timestamp -> {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+                String formattedTimestamp = timestamp.toLocalDateTime().format(formatter);
+                return STR."'\{formattedTimestamp}'";
+            }
+            default -> {
+                return value.toString();
+            }
         }
     }
 

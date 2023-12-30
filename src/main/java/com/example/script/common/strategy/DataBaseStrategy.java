@@ -1,6 +1,7 @@
 package com.example.script.common.strategy;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.example.script.common.domain.TableInfo;
 import com.example.script.common.domain.TableKey;
 import lombok.Getter;
 
@@ -29,6 +30,7 @@ public abstract class DataBaseStrategy implements DataSourceStrategy {
     public abstract String getTableStructure(String databaseName, String tableName) throws SQLException;
 
     public abstract TableKey getPrimaryOrUniqueKeys(String tableDDL);
+    public abstract TableInfo parsingTableStatement(String tableDDL);
 
     @Override
     public void createDataSource(String url, String username, String password) throws SQLException {
@@ -91,7 +93,7 @@ public abstract class DataBaseStrategy implements DataSourceStrategy {
 
         List<String> allDatabases = getAllDatabases(null);
 
-        Map<String, List<String>> tableNames = new HashMap<>();
+        Map<String, List<String>> tableNames = new LinkedHashMap<>();
         for (String databaseName : allDatabases) {
             List<String> getTableNamesByDatabase = getTableNames(databaseName);
             tableNames.computeIfAbsent(databaseName, k -> new ArrayList<>()).addAll(getTableNamesByDatabase);
@@ -122,7 +124,7 @@ public abstract class DataBaseStrategy implements DataSourceStrategy {
     @Override
     public Map<String, Map<String, List<Map<String, Object>>>> toGetData() throws SQLException {
         List<String> allDatabases = getAllDatabases();
-        Map<String, Map<String, List<Map<String, Object>>>> result = new HashMap<>();
+        Map<String, Map<String, List<Map<String, Object>>>> result = new LinkedHashMap<>();
         for (String databaseName : allDatabases) {
             Map<String, List<Map<String, Object>>> getData = toGetDataByDataBase(databaseName);
             result.put(databaseName,getData);
@@ -134,7 +136,7 @@ public abstract class DataBaseStrategy implements DataSourceStrategy {
     @Override
     public Map<String, List<Map<String, Object>>> toGetDataByDataBase(String databaseName) throws SQLException {
         List<String> tableNames = getTableNames(databaseName);
-        Map<String, List<Map<String, Object>>> allTableData = new HashMap<>();
+        Map<String, List<Map<String, Object>>> allTableData = new LinkedHashMap<>();
         for (String tableName : tableNames) {
             List<Map<String, Object>> rows = toGetDataByTable(databaseName, tableName);
 
@@ -150,7 +152,7 @@ public abstract class DataBaseStrategy implements DataSourceStrategy {
     }
     @Override
     public Map<String,List<String>> getTableStructure() throws SQLException {
-        Map<String,List<String>> tableStructures=new HashMap<>();
+        Map<String,List<String>> tableStructures=new LinkedHashMap<>();
         List<String> allDatabases = getAllDatabases();
         for (String databaseName : allDatabases) {
             tableStructures.put(databaseName,getTableStructure(databaseName));
@@ -169,7 +171,7 @@ public abstract class DataBaseStrategy implements DataSourceStrategy {
     }
     @Override
     public Map<String,Map<String,TableKey>> getAllPrimaryOrUniqueKeys() throws SQLException {
-        Map<String,Map<String,TableKey>> result=new HashMap<>();
+        Map<String,Map<String,TableKey>> result=new LinkedHashMap<>();
         List<String> allDatabases = getAllDatabases();
         for (String databaseName : allDatabases) {
             Map<String, TableKey> tableKeys = getPrimaryOrUniqueKeysByDataBase(databaseName);
@@ -180,12 +182,35 @@ public abstract class DataBaseStrategy implements DataSourceStrategy {
     }
     @Override
     public Map<String,TableKey> getPrimaryOrUniqueKeysByDataBase(String databaseName) throws SQLException {
-        Map<String,TableKey> tableKeyMap=new HashMap<>();
+        Map<String,TableKey> tableKeyMap=new LinkedHashMap<>();
         List<String> tableStructures = getTableStructure(databaseName);
         for (String tableStructure : tableStructures) {
             TableKey keys = getPrimaryOrUniqueKeys(tableStructure);
             tableKeyMap.put(keys.getTableName(),keys);
         }
         return tableKeyMap;
+    }
+
+    @Override
+    public Map<String,Map<String,TableInfo>> getAllTableInfo() throws SQLException {
+        Map<String,Map<String,TableInfo>> result=new LinkedHashMap<>();
+        List<String> allDatabases = getAllDatabases();
+        for (String databaseName : allDatabases) {
+            Map<String, TableInfo> tableMap = getTableInfo(databaseName);
+            result.put(databaseName,tableMap);
+        }
+
+        return result;
+    }
+
+    @Override
+    public Map<String,TableInfo> getTableInfo(String databaseName) throws SQLException {
+        Map<String,TableInfo> tableMap=new LinkedHashMap<>();
+        List<String> tableStructures = getTableStructure(databaseName);
+        for (String tableStructure : tableStructures) {
+            TableInfo tableInfo = parsingTableStatement(tableStructure);
+            tableMap.put(tableInfo.getName(),tableInfo);
+        }
+        return tableMap;
     }
 }

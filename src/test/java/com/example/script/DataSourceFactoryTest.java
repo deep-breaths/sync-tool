@@ -1,6 +1,7 @@
 package com.example.script;
 
 import com.alibaba.druid.util.JdbcConstants;
+import com.example.script.common.domain.TableInfo;
 import com.example.script.common.domain.TableKey;
 import com.example.script.common.expression.Context;
 import com.example.script.common.expression.DataTableExpression;
@@ -62,6 +63,7 @@ public class DataSourceFactoryTest {
         Map<String, List<Map<String, Object>>> getDataByCatalog = dataSourceStrategy.toGetDataByCatalog();
         Map<String, List<String>> tableStructure = dataSourceStrategy.getTableStructure();
         Map<String, Map<String, TableKey>> allPrimaryOrUniqueKeys = dataSourceStrategy.getAllPrimaryOrUniqueKeys();
+        Map<String, Map<String, TableInfo>> allTableInfo = dataSourceStrategy.getAllTableInfo();
         tableNames.forEach((key, value)-> System.out.println(key+" >>>>>>>  "+value));
         getInitData.forEach((key, value)-> System.out.println(key+" >>>>>>>  "+value));
     }

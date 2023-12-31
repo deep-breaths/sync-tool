@@ -1,5 +1,6 @@
 package com.example.script.domain;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -9,7 +10,7 @@ import java.util.Set;
 public class TableKey {
     private String tableName;
 
-    private Set<String> keys;
+    private Map<String,Set<String>> keys;
 
     public String getTableName() {
         return tableName;
@@ -19,11 +20,11 @@ public class TableKey {
         this.tableName = tableName;
     }
 
-    public Set<String> getKeys() {
+    public  Map<String,Set<String>> getKeys() {
         return keys;
     }
 
-    public void setKeys(Set<String> keys) {
+    public void setKeys( Map<String,Set<String>> keys) {
         this.keys = keys;
     }
 }

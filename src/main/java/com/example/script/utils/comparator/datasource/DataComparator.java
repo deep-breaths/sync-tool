@@ -48,7 +48,18 @@ public class DataComparator {
     private static void getDiffDML(Connection sourceConn, Connection targetConn, String database, String table,
                                 List<String> inserts, List<String> updates, List<String> deletes) {
         try {
-            Set<String> keys = DBUtils.getPrimaryOrUniqueKeys(sourceConn, database, table);
+            Map<String, Set<String>> sourceKeys = DBUtils.getPrimaryOrUniqueKeys(sourceConn, database, table);
+            Map<String, Set<String>> targetKeys = DBUtils.getPrimaryOrUniqueKeys(targetConn, database, table);
+
+            Set<String> keys = null;
+            for (Map.Entry<String, Set<String>> sourceKey : sourceKeys.entrySet()){
+                Set<String> value = sourceKey.getValue();
+                if (targetKeys.containsValue(value)) {
+                    keys = value;
+                    break;
+                }
+        }
+            keys= keys == null ? sourceKeys.entrySet().stream().findFirst().map(Map.Entry::getValue).orElse(null): keys;
 
             Map<Map<String, Object>, Map<String, Object>> sourceData = fetchData(sourceConn, database, table, keys);
             Map<Map<String, Object>, Map<String, Object>> targetData = fetchData(targetConn, database, table, keys);

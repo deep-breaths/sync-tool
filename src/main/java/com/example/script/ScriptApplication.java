@@ -68,9 +68,9 @@ public class ScriptApplication {
         //《数据库名，建表语句》
         Map<String, List<String>> creates = initSQL.get(SQLSaveType.DDL_CREATE);
         // 《数据库名，《表名，sql语句》》
-        Map<String, Map<String, Set<String>>> allKeys = new HashMap<>();
+        Map<String, Map<String, Map<String, Set<String>>>> allKeys = new HashMap<>();
         creates.forEach((databaseName, tables) -> {
-            Map<String, Set<String>> tableKeys = TableFileComparator.getPrimaryOrUniqueKeys(tables);
+            Map<String, Map<String, Set<String>>> tableKeys = TableFileComparator.getPrimaryOrUniqueKeys(tables);
             allKeys.put(databaseName, tableKeys);
 
         });
@@ -78,7 +78,8 @@ public class ScriptApplication {
         Map<String, List<String>> inserts = initSQL.get(SQLSaveType.DML_INSERT);
 
         inserts.forEach((databaseName, insetSQLs) -> {
-            Map<String, Map<Map<String, Object>, Map<String, Object>>> stringMapMap = DataFileComparator.fetchData(insetSQLs, allKeys.get(databaseName));
+            Map<String, Map<Map<String, Object>, Map<String, Object>>> stringMapMap =
+                    DataFileComparator.fetchData(insetSQLs, allKeys.get(databaseName).get(0));
 
             stringMapMap.entrySet().forEach(System.out::println);
         });

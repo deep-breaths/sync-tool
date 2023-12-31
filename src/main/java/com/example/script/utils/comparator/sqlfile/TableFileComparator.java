@@ -1,5 +1,7 @@
 package com.example.script.utils.comparator.sqlfile;
 
+import com.alibaba.druid.sql.ast.SQLIndexDefinition;
+import com.alibaba.druid.sql.ast.SQLName;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.dialect.mysql.ast.MySqlKey;
 import com.alibaba.druid.sql.dialect.mysql.ast.MySqlPrimaryKey;
@@ -9,7 +11,6 @@ import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.druid.util.JdbcConstants;
-import com.example.script.constant.FolderType;
 import com.example.script.constant.SQLSaveType;
 import com.example.script.domain.DiffDDL;
 import com.example.script.domain.TableKey;
@@ -33,7 +34,7 @@ public class TableFileComparator {
 
     public static DiffDDL getDiffDDL(Connection targetConn) {
         Map<String, Map<String, List<String>>> result = new HashMap<>();
-        Map<String, Map<String, Set<String>>> allKeys = new HashMap<>();
+        Map<String, Map<String, Map<String, Set<String>>>> allKeys = new HashMap<>();
         Map<String, List<String>> creates = getCreatesByDefault();
         creates.forEach((databaseName, tables) -> {
             try {
@@ -44,7 +45,7 @@ public class TableFileComparator {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-            Map<String, Set<String>> tableKeys = TableFileComparator.getPrimaryOrUniqueKeys(tables);
+            Map<String, Map<String, Set<String>>> tableKeys = TableFileComparator.getPrimaryOrUniqueKeys(tables);
             allKeys.put(databaseName, tableKeys);
 
         });
@@ -99,14 +100,14 @@ public class TableFileComparator {
 
     public static DiffDDL getDiffDDL(String targetCreatePath) {
         Map<String, Map<String, List<String>>> result = new HashMap<>();
-        Map<String, Map<String, Set<String>>> allKeys = new HashMap<>();
+        Map<String, Map<String, Map<String, Set<String>>>> allKeys = new HashMap<>();
         Map<String, List<String>> creates = getCreatesByDefault();
         creates.forEach((databaseName, tables) -> {
             List<String> diffStatements = compareTableSchema(tables, targetCreatePath, databaseName);
             if (!diffStatements.isEmpty()) {
                 result.put(DIFF_TABLE, Map.of(databaseName, diffStatements));
             }
-            Map<String, Set<String>> tableKeys = TableFileComparator.getPrimaryOrUniqueKeys(tables);
+            Map<String, Map<String, Set<String>>> tableKeys = TableFileComparator.getPrimaryOrUniqueKeys(tables);
             allKeys.put(databaseName, tableKeys);
 
         });
@@ -187,12 +188,10 @@ public class TableFileComparator {
         }
 
         public static Map<String, List<String>> getCreates (String path){
-            return getInit(path).get(SQLSaveType.DDL_CREATE);
+            return FileUtils.getInit(path).get(SQLSaveType.DDL_CREATE);
         }
 
-        public static Map<String, Map<String, List<String>>> getInit (String path){
-            return FileUtils.getFile(FileUtils.getPath(path, FolderType.INIT));
-        }
+
 
 
         /**
@@ -207,8 +206,8 @@ public class TableFileComparator {
          * @param tables
          * @return
          */
-        public static Map<String, Set<String>> getPrimaryOrUniqueKeys (List < String > tables) {
-            Map<String, Set<String>> result = new HashMap<>();
+        public static Map<String, Map<String,Set<String>>> getPrimaryOrUniqueKeys (List < String > tables) {
+            Map<String, Map<String,Set<String>>> result = new HashMap<>();
             for (String tableDDL : tables) {
                 TableKey tableKey = getPrimaryOrUniqueKeys(tableDDL);
                 if (tableKey.getTableName() != null && !tableKey.getKeys().isEmpty()) {
@@ -220,7 +219,8 @@ public class TableFileComparator {
         }
 
         private static TableKey getPrimaryOrUniqueKeys (String tableDDL){
-            Set<String> keys = new HashSet<>();
+            Map<String,Set<String>> tableKeys = new HashMap<>();
+
             SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(tableDDL, JdbcConstants.MYSQL);
             List<SQLStatement> statements = parser.parseStatementList();
 
@@ -234,19 +234,24 @@ public class TableFileComparator {
                     statement.accept(visitor);
                     List<MySqlKey> sqlKeys = createTableStatement.getMysqlKeys();
                     for (MySqlKey key : sqlKeys) {
+                        Set<String> keys = new HashSet<>();
                         if (key instanceof MySqlPrimaryKey columns) {
-                            columns
-                                    .getIndexDefinition()
+                            SQLIndexDefinition indexDefinition = columns
+                                    .getIndexDefinition();
+                            indexDefinition
                                     .getColumns()
                                     .forEach(column -> keys.add(column.getExpr().toString().replace("`", "")));
-                            break;
+                            tableKeys.put("primary",keys);
                         } else if (key instanceof MySqlUnique columns) {
-                            columns
-                                    .getIndexDefinition()
+                            SQLIndexDefinition indexDefinition = columns
+                                    .getIndexDefinition();
+                            indexDefinition
                                     .getColumns()
                                     .forEach(column -> keys.add(column.getExpr().toString().replace("`", "")));
-                            break;
+                            SQLName name = indexDefinition.getName();
+                            tableKeys.put(name==null?null:name.toString().replace("`", ""),keys);
                         }
+
 
 
                     }
@@ -256,7 +261,7 @@ public class TableFileComparator {
             }
             TableKey tableKey = new TableKey();
             tableKey.setTableName(tableName);
-            tableKey.setKeys(keys);
+            tableKey.setKeys(tableKeys);
             return tableKey;
         }
 

@@ -4,10 +4,7 @@ import com.alibaba.druid.pool.DruidDataSource;
 
 import java.sql.*;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.example.script.constant.DBConstant.DRIVER_CLASS_NAME;
 
@@ -19,6 +16,7 @@ public class DBUtils {
 
     /**
      * 创建数据源
+     *
      * @param url
      * @param username
      * @param password
@@ -35,6 +33,7 @@ public class DBUtils {
 
     /**
      * 根据数据库连接获取数据库列表
+     *
      * @param conn
      * @return
      * @throws SQLException
@@ -58,6 +57,7 @@ public class DBUtils {
 
     /**
      * 根据数据库连接查询表列表
+     *
      * @param conn
      * @param databaseName
      * @return
@@ -76,42 +76,37 @@ public class DBUtils {
 
     /**
      * 根据数据库连接查询主键或唯一键
+     *
      * @param conn
      * @param databaseName
      * @param tableName
      * @return
      * @throws SQLException
      */
-    public static Set<String> getPrimaryOrUniqueKeys(Connection conn, String databaseName, String tableName) throws SQLException {
-        Set<String> keys = new HashSet<>();
+    public static Map<String, Set<String>> getPrimaryOrUniqueKeys(Connection conn, String databaseName, String tableName) throws SQLException {
+        Map<String, Set<String>> allKeys = new LinkedHashMap<>();
         DatabaseMetaData metaData = conn.getMetaData();
 
         // 使用databaseName作为参数查询主键
         ResultSet rs = metaData.getPrimaryKeys(databaseName, databaseName, tableName);
+        Set<String> keys = new HashSet<>();
         while (rs.next()) {
             keys.add(rs.getString("COLUMN_NAME"));
         }
+        allKeys.put("primary", keys);
         rs.close();
 
-        // 如果没有主键，尝试获取唯一索引
-        if (keys.isEmpty()) {
-            rs = metaData.getIndexInfo(databaseName, databaseName, tableName, true, true);
-            String firstIndexName = null;
-            while (rs.next()) {
-                String indexName = rs.getString("INDEX_NAME");
-                if (firstIndexName == null) {
-                    firstIndexName = indexName;
-                } else if (!firstIndexName.equals(indexName)) {
-                    break;
-                }
-                keys.add(rs.getString("COLUMN_NAME"));
-            }
-            rs.close();
+        // 尝试获取唯一索引
+        rs = metaData.getIndexInfo(databaseName, databaseName, tableName, true, true);
+        while (rs.next()) {
+            String indexName = rs.getString("INDEX_NAME");
+            allKeys.computeIfAbsent(indexName, k -> new HashSet<>()).add(rs.getString("COLUMN_NAME"));
         }
+        rs.close();
 
-        return keys;
+
+        return allKeys;
     }
-
 
 
     public static String convertJavaType(Object value) {

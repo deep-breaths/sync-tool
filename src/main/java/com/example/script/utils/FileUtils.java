@@ -73,6 +73,10 @@ public class FileUtils {
         }
         return null;
     }
+
+    public static Map<String, Map<String, List<String>>> getInit (String path){
+        return FileUtils.getFile(FileUtils.getPath(path, FolderType.INIT));
+    }
     public static void getFileByPath(String folderPath,String... folder){
         if (folder!=null){
             for (String s : folder) {

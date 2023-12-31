@@ -75,6 +75,52 @@ public class DataFileComparator {
 
     }
 
+    public static Map<String, Map<String, List<String>>> getDiffDML(DiffDDL diffDDL, DiffDDL targetDiffDDL) throws SQLException {
+        Map<String, Map<String, List<String>>> result = new HashMap<>();
+        Map<String, Map<String, Set<String>>> allKeys = diffDDL.getKeys();
+        Map<String, List<String>> sourceInserts = getInserts();
+        Map<String, List<String>> targetInserts = getInserts();
+        sourceInserts.forEach((databaseName, insetSQLs) -> {
+
+            Map<String, Map<Map<String, Object>, Map<String, Object>>> sourceFetchData = DataFileComparator.fetchData(insetSQLs, allKeys.get(databaseName));
+            List<String> tables = sourceFetchData.keySet().stream().toList();
+            Map<String, Map<Map<String, Object>, Map<String, Object>>> targetFetchData =DataFileComparator.fetchData(targetInserts.get(databaseName), allKeys.get(databaseName));
+            List<String> inserts = new ArrayList<>();
+            List<String> updates = new ArrayList<>();
+            List<String> deletes = new ArrayList<>();
+            sourceFetchData.forEach((tableName, sourceData) -> {
+                Map<Map<String, Object>, Map<String, Object>> targetData = targetFetchData.get(tableName);
+                // 检测变化
+                for (Map.Entry<Map<String, Object>, Map<String, Object>> sourceEntry : sourceData.entrySet()) {
+                    if (!targetData.containsKey(sourceEntry.getKey())) {
+                        inserts.add(BuildSQL.buildInsertSql(databaseName, tableName, sourceEntry.getValue()));
+                    } else if (!sourceEntry.getValue().equals(targetData.get(sourceEntry.getKey()))) {
+                        updates.add(BuildSQL.buildUpdateSql(databaseName, tableName, sourceEntry.getKey(), sourceEntry.getValue()));
+                    }
+                }
+
+                for (Map<String, Object> key : targetData.keySet()) {
+                    if (!sourceData.containsKey(key)) {
+                        deletes.add(BuildSQL.buildDeleteSql(databaseName, tableName, key));
+                    }
+                }
+
+            });
+
+            if (!inserts.isEmpty()) {
+                result.put(DML_INSERT, Map.of(databaseName, inserts));
+            }
+            if (!updates.isEmpty()) {
+                result.put(DML_UPDATE, Map.of(databaseName, updates));
+            }
+            if (!deletes.isEmpty()) {
+                result.put(DML_DELETE, Map.of(databaseName, deletes));
+            }
+        });
+        return result;
+
+    }
+
 
     /**
      * @param sqlList

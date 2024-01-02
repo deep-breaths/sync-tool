@@ -39,31 +39,8 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.graalvm.buildtools</groupId>
-                <artifactId>native-maven-plugin</artifactId>
-                <configuration>
-                    <!-- imageName is used to set the name of the generated binary file -->
-                    <imageName>${project.artifactId}</imageName>
-                    <!-- mainClass is used to specify the path to the main method class -->
-                    <mainClass>com.example.script.ScriptApplication</mainClass>
-                    <buildArgs>
-                        --no-fallback
-                    </buildArgs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>build-native</id>
-                        <goals>
-                            <goal>compile-no-fork</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.3.0</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -93,6 +70,28 @@
                     <target>21</target>
                     <compilerArgs>--enable-preview</compilerArgs>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.graalvm.buildtools</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+                <configuration>
+                    <!-- imageName is used to set the name of the generated binary file -->
+                    <imageName>${project.artifactId}</imageName>
+                    <!-- mainClass is used to specify the path to the main method class -->
+                    <mainClass>com.example.script.ScriptApplication</mainClass>
+                    <buildArgs>
+                        --no-fallback
+                    </buildArgs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>build-native</id>
+                        <goals>
+                            <goal>compile-no-fork</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

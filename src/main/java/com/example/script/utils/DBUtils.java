@@ -113,11 +113,11 @@ public class DBUtils {
         if (value == null) {
             return null;
         } else if (value instanceof String) {
-            return STR."'\{value}'";
+            return "'"+ value+"'";
         } else if (value instanceof Timestamp) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
             String formattedTimestamp = ((Timestamp) value).toLocalDateTime().format(formatter);
-            return STR."'\{formattedTimestamp}'";
+            return "'"+formattedTimestamp+"'";
         } else {
             return value.toString();
         }
@@ -157,7 +157,7 @@ public class DBUtils {
         resultSet.close();
         statement.close();
 
-        return STR."\{createTableSQL};";
+        return createTableSQL+";";
     }
 
 }

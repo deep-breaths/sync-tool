@@ -160,7 +160,7 @@ public class FileUtils {
             List<String>> fileProcessor, String filePath) {
         allData.forEach((sqlType, sqlMap) -> sqlMap.forEach((dbName, sqlList) -> {
             String fullPath = filePath + dbName;
-            fileProcessor.accept(fullPath, STR."\{sqlType}.sql", sqlList);
+            fileProcessor.accept(fullPath, sqlType+".sql", sqlList);
         }));
     }
 

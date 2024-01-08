@@ -1,16 +1,18 @@
 package com.example.script;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.example.script.test.constant.FolderType;
-import com.example.script.test.constant.SQLSaveType;
-import com.example.script.test.domain.DiffDDL;
-import com.example.script.test.utils.DBUtils;
-import com.example.script.test.utils.MigrationUtils;
+import com.example.script.common.rule.BackupRule;
+import com.example.script.common.rule.TableRule;
 import com.example.script.test.comparator.datasource.DataComparator;
 import com.example.script.test.comparator.datasource.TableComparator;
 import com.example.script.test.comparator.sqlfile.DataFileComparator;
 import com.example.script.test.comparator.sqlfile.TableFileComparator;
+import com.example.script.test.constant.FolderType;
+import com.example.script.test.constant.SQLSaveType;
+import com.example.script.test.domain.DiffDDL;
+import com.example.script.test.utils.DBUtils;
 import com.example.script.test.utils.FileUtils;
+import com.example.script.test.utils.MigrationUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.StopWatch;
@@ -217,6 +219,15 @@ public class SyncToolApplicationTests {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void ruleTest() {
+
+        BackupRule backupRule = new BackupRule();
+        Map<String, Map<String, TableRule>> dataRule = new HashMap<>();
+        Map<String, TableRule> tableRuleMap = new HashMap<>();
+    }
+
 
 
 }

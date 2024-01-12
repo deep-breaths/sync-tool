@@ -15,6 +15,9 @@ public class RuleTest {
     public static void main(String[] args) {
         //默认导出指定数据库的所有表结构（不包含数据），规则中存在的表则表示要导出数据，具体的数据范围单独配置
         BackupRule build = new BackupRule()
+                .buildDB("seata-server")
+                .buildDB("dimmer-center")
+                .buildDB("log-center")
                 .buildDB("nacos", DBParam::isAllData)
                 .buildDB("ice", DBParam::isAllData)
                 .buildDB("dict-center", DBParam::isAllData)

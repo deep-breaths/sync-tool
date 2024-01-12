@@ -90,28 +90,6 @@ public class RuleUtils {
 
     }
 
-    public static Boolean checkIsExportTableData(String databaseName, String tableName) {
-        DBRule dbRule = ruleMap.get(databaseName);
-        if (dbRule == null) {
-            return Boolean.FALSE;
-        }
-        if (!dbRule.getIncludeData()) {
-            return Boolean.FALSE;
-        }
-        if (dbRule.getIsAllData()) {
-            return Boolean.TRUE;
-        }
-
-        Map<String, TableRule> tableRule = dbRule.getTableRule();
-        TableRule currentTableRule = tableRule.get(tableName);
-        if (currentTableRule == null) {
-            return Boolean.FALSE;
-        }
-
-        return Boolean.TRUE;
-
-    }
-
     public static ExportDataRule getTableDataCondition(String databaseName, String tableName) {
         DBRule dbRule = ruleMap.get(databaseName);
         ExportDataRule exportDataRule = new ExportDataRule();

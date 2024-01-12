@@ -137,7 +137,9 @@ public abstract class DataBaseStrategy implements DataSourceStrategy {
         Map<String, Map<String, List<Map<String, Object>>>> result = new LinkedHashMap<>();
         for (String databaseName : allDatabases) {
             Map<String, List<Map<String, Object>>> getData = toGetDataByDataBase(databaseName);
-            result.put(databaseName, getData);
+            if (getData!=null&&!getData.isEmpty()){
+                result.put(databaseName, getData);
+            }
 
         }
 

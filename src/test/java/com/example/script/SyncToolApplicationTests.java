@@ -2,7 +2,7 @@ package com.example.script;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.example.script.common.rule.BackupRule;
-import com.example.script.common.rule.TableRule;
+import com.example.script.common.rule.DBRule;
 import com.example.script.test.comparator.datasource.DataComparator;
 import com.example.script.test.comparator.datasource.TableComparator;
 import com.example.script.test.comparator.sqlfile.DataFileComparator;
@@ -223,9 +223,24 @@ public class SyncToolApplicationTests {
     @Test
     public void ruleTest() {
 
-        BackupRule backupRule = new BackupRule();
-        Map<String, Map<String, TableRule>> dataRule = new HashMap<>();
-        Map<String, TableRule> tableRuleMap = new HashMap<>();
+       BackupRule build = new BackupRule()
+               .buildDB("nacos",dbParam ->dbParam.isInclude(true))
+               .buildDB("ice",dbParam ->dbParam.isInclude(true))
+               .buildDB("dict-center",dbParam ->dbParam.isInclude(true))
+               .build()
+               .buildDB("job-center",dbParam ->dbParam.isInclude(true) ,table->table.name("app_info").name("job_info"))
+               .build()
+               .buildDB("user-center",dbParam ->dbParam.isInclude(true),table->table.name("sys_dept",
+                                                                                          some -> some.where("id=1275397643669949952"))
+                                                  .name("sys_dept",some -> some.where("id>=1275397643669949952"))
+                                                  .name("sys_role")
+               )
+
+               .build();
+
+        Map<String, DBRule> ruleMap = build.getRuleMap();
+        System.out.println(ruleMap);
+
     }
 
 

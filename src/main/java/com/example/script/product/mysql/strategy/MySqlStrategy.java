@@ -16,6 +16,8 @@ import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.druid.util.JdbcConstants;
 import com.example.script.common.domain.*;
+import com.example.script.common.rule.ExportDataRule;
+import com.example.script.common.rule.RuleUtils;
 import com.example.script.common.strategy.DataBaseStrategy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -41,11 +43,20 @@ public class MySqlStrategy extends DataBaseStrategy {
 
     @Override
     public List<Map<String, Object>> toGetDataByTable(String databaseName, String tableName) throws SQLException {
+        ExportDataRule exportDataRule = RuleUtils.getTableDataCondition(databaseName, tableName);
+        if (!exportDataRule.getIncludeData()){
+            return new ArrayList<>();
+        }
+        String where = exportDataRule.getWhere();
         List<Map<String, Object>> rows = new ArrayList<>();
+        String selectSql = String.format("SELECT * FROM `%s`.`%s`", databaseName, tableName);
+        if (where!=null&&!where.isBlank()){
+            selectSql=String.format("%s WHERE %s",selectSql,where);
+        }
         ResultSet dataResultSet = super
                 .getConn()
                 .createStatement()
-                .executeQuery(String.format("SELECT * FROM `%s`.`%s`", databaseName, tableName));
+                .executeQuery(selectSql);
         ResultSetMetaData resultSetMetaData = dataResultSet.getMetaData();
         int columnCount = resultSetMetaData.getColumnCount();
         while (dataResultSet.next()) {

@@ -24,9 +24,9 @@ public class DBRule {
     private String name;
 
     /**
-     * 是否导出该数据库
+     * 是否导出该数据库,只支持true
      */
-    private Boolean isInclude=false;
+    private Boolean isInclude=true;
     /**
      * 是否导出数据
      */

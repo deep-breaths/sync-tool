@@ -30,17 +30,24 @@ public class TableRule {
      * 单表数据修改语句
      */
     private List<String> update;
+
     /**
-     * 是否全部数据
+     * 是否导出数据
      */
-    private Boolean isAll=true;
+    private Boolean includeData=true;
+    /**
+     * 是否导出全部数据
+     */
+    private Boolean isAllData=true;
     /**
      * 该数据是否是多租户
      */
     private Boolean isMultiTenant=false;
 
-    public TableRule(String name,Boolean isMultiTenant) {
+    public TableRule(String name,Boolean isMultiTenant,Boolean includeData) {
         this.isMultiTenant=isMultiTenant;
         this.name = name;
+        this.includeData=includeData;
+        this.isAllData=includeData;
     }
 }

@@ -14,7 +14,8 @@ public class Some {
     private TableRule currentTableRule;
 
     public Some where(String condition) {
-        isAll(Boolean.FALSE);
+        notAllData();
+        includeData();
         currentTableRule.setWhere(condition);
         return this;
     }
@@ -24,16 +25,31 @@ public class Some {
         return this;
     }
 
-    public Some isAll(boolean isAll) {
-        currentTableRule.setIsAll(isAll);
+
+
+    public Some includeData(boolean includeData) {
+        currentTableRule.setIncludeData(includeData);
         return this;
     }
-    public Some isAll() {
-        isAll(Boolean.TRUE);
+    public Some includeData() {
+        includeData(Boolean.TRUE);
         return this;
     }
-    public Some notAll() {
-        isAll(Boolean.FALSE);
+    public Some notIncludeData() {
+        includeData(Boolean.FALSE);
+        return this;
+    }
+    public Some isAllData(boolean isAllData) {
+        currentTableRule.setIsAllData(isAllData);
+        return this;
+    }
+    public Some isAllData() {
+        includeData();
+        isAllData(Boolean.TRUE);
+        return this;
+    }
+    public Some notAllData() {
+        isAllData(Boolean.FALSE);
         return this;
     }
 

@@ -66,4 +66,18 @@ public class DBParam {
         isMultiTenant(Boolean.FALSE);
         return this;
     }
+
+    public DBParam isAllStruct(Boolean isAllStruct){
+        this.currentDBRule.setIsAllStruct(isAllStruct);
+        return this;
+    }
+
+    public DBParam isAllStruct(){
+        isAllStruct(Boolean.TRUE);
+        return this;
+    }
+    public DBParam notIsAllStruct(){
+        isAllStruct(Boolean.FALSE);
+        return this;
+    }
 }

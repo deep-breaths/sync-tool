@@ -44,6 +44,11 @@ public class DBRule {
      */
     private Boolean isMultiTenant=false;
 
+    /**
+     * 是否所有表结构
+     */
+    private Boolean isAllStruct=true;
+
     public DBRule(String name) {
         this.name = name;
     }

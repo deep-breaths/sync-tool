@@ -17,7 +17,8 @@ public class TableParam {
     private TableRule currentTableRule;
 
     public TableParam name(String tableName) {
-        this.currentTableRule = new TableRule(tableName,currentDBRule.getIsMultiTenant());
+        this.currentTableRule = new TableRule(tableName,currentDBRule.getIsMultiTenant(),
+                                              currentDBRule.getIncludeData());
         this.currentDBRule.getTableRule().put(tableName, currentTableRule);
         return this;
     }

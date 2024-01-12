@@ -21,7 +21,8 @@ public class RuleTest {
                 .buildDB("nacos", DBParam::isAllData)
                 .buildDB("ice", DBParam::isAllData)
                 .buildDB("dict-center", DBParam::isAllData)
-                .buildDB("job-center", DBParam::isAllData, table -> table.name("app_info").name("job_info"))
+                .buildDB("job-center", DBParam::notIsAllData, table -> table.name("app_info").name(
+                        "job_info"))
                 .buildDB("user-center", dbParam -> dbParam.notIsAllData().isMultiTenant(), table -> table
                         .name("sys_dept",
                               some -> some.where("id=1275397643669949952"))
@@ -46,6 +47,8 @@ public class RuleTest {
                         .name("protocol_service_classify")
                         .name("protocol_service_type")
                 )
+                .buildDB("visual_face_search",dbParam -> dbParam.notIsAllStruct().notIncludeData(),table->table
+                        .name("visual_collection"))
 
                 .build();
 

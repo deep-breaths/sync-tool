@@ -1,7 +1,10 @@
 package com.example.script;
 
 import cn.hutool.core.date.StopWatch;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.druid.pool.DruidDataSource;
+import com.example.script.common.rule.DBRule;
+import com.example.script.common.rule.RuleUtils;
 import com.example.script.constant.FolderType;
 import com.example.script.constant.SQLSaveType;
 import com.example.script.domain.DiffDDL;
@@ -28,12 +31,19 @@ public class ScriptApplication {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start("计时");
         //getSQL();
-        getSQLBySourceFile();
+        //getSQLBySourceFile();
+
+        getRule();
 
 
         stopWatch.stop();
         System.out.println(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
 
+    }
+
+    private static void getRule(){
+        Map<String, DBRule> ruleMap = RuleUtils.getRuleMap();
+        System.out.println(JSONUtil.toJsonStr(ruleMap));
     }
     private static void getSQLBySourceFile(){
 

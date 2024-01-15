@@ -1,5 +1,6 @@
 package com.example.script.utils.comparator.datasource;
 
+import com.example.script.common.rule.RuleUtils;
 import com.example.script.utils.DBUtils;
 import com.example.script.utils.comparator.BuildSQL;
 
@@ -33,7 +34,9 @@ public class TableComparator {
 
     public static List<String> compareTableSchema(Connection sourceConn, Connection targetConn, String databaseName) throws SQLException {
         List<String> diffStatements = new ArrayList<>();
-
+        if (!RuleUtils.checkIsExportDB(databaseName)){
+        return diffStatements;
+        }
         DatabaseMetaData sourceMetaData = sourceConn.getMetaData();
         DatabaseMetaData targetMetaData = targetConn.getMetaData();
 
@@ -43,6 +46,9 @@ public class TableComparator {
 
         while (sourceTables.next()) {
             String tableName = sourceTables.getString("TABLE_NAME");
+            if (!RuleUtils.checkIsExportTableStruct(databaseName,tableName)){
+                continue;
+            }
             if (DBUtils.tableExistsInTarget(tableName, targetTables)) {
                 // 表存在于目标数据库，比较表结构
                 String sourceTableDDL = DBUtils.showCreateTable(sourceConn, null, tableName);

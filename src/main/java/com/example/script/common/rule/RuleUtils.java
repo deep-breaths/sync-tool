@@ -97,7 +97,7 @@ public class RuleUtils {
         return Boolean.TRUE;
 
     }
-public static Boolean checkThisDbIsExportStruct(String databaseName) {
+public static Boolean checkThisDbIsExportData(String databaseName) {
     DBRule dbRule = ruleMap.get(databaseName);
     if (dbRule==null){
         return Boolean.FALSE;
@@ -148,6 +148,17 @@ public static Boolean checkThisDbIsExportStruct(String databaseName) {
         exportDataRule.setUpdate(currentTableRule.getUpdate());
         return exportDataRule;
 
+    }
+
+    public static String toSetWhere(String where, String sql) {
+        if (where !=null&& !where.isBlank()){
+            if (where.startsWith("limit")){
+                sql =String.format("%s %s", sql, where);
+            }else {
+                sql =String.format("%s WHERE %s", sql, where);
+            }
+        }
+        return sql;
     }
 
 }

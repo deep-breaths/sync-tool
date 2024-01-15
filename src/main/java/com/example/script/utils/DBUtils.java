@@ -1,6 +1,7 @@
 package com.example.script.utils;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.example.script.common.rule.RuleUtils;
 
 import java.sql.*;
 import java.time.format.DateTimeFormatter;
@@ -48,7 +49,11 @@ public class DBUtils {
         ResultSet rs = conn.getMetaData().getCatalogs();
 
         while (rs.next()) {
-            databases.add(rs.getString(1));
+            String databaseName = rs.getString(1);
+            if (RuleUtils.checkIsExportDB(databaseName)){
+                databases.add(databaseName);
+            }
+
         }
 
         rs.close();
@@ -68,7 +73,10 @@ public class DBUtils {
         ResultSet rs = conn.getMetaData().getTables(databaseName, null, "%", null);
 
         while (rs.next()) {
-            tables.add(rs.getString(3)); // 获取表名
+            String tableName = rs.getString(3);
+            if (RuleUtils.checkIsExportTableStruct(databaseName,tableName)){
+                tables.add(tableName); // 获取表名
+            }
         }
         rs.close();
         return tables;

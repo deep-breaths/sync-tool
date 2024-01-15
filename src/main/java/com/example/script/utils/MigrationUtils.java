@@ -5,6 +5,9 @@ package com.example.script.utils;
  * @date 2023/12/20
  */
 
+import com.example.script.common.rule.ExportDataRule;
+import com.example.script.common.rule.RuleUtils;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,6 +53,9 @@ public class MigrationUtils {
     }
 
     public static String getTableStructure(Connection conn, String databaseName, String tableName) throws SQLException {
+        if (!RuleUtils.checkIsExportTableStruct(databaseName,tableName)){
+            return null;
+        }
         String sql = String.format(" SHOW CREATE TABLE `%s`.`%s`", databaseName, tableName);
         ResultSet resultSet = conn.createStatement().executeQuery(sql);
         if (resultSet.next()) {
@@ -60,10 +66,17 @@ public class MigrationUtils {
 
     public static List<String> getTableNames(Connection conn, String databaseName) throws SQLException {
         List<String> tables = new ArrayList<>();
+        if (!RuleUtils.checkIsExportDB(databaseName)){
+            return tables;
+        }
         ResultSet rs = conn.getMetaData().getTables(databaseName, null, "%", null);
 
         while (rs.next()) {
-            tables.add(rs.getString(3)); // 获取表名
+            String tableName = rs.getString(3);
+            if (RuleUtils.checkIsExportTableStruct(databaseName,tableName)){
+                tables.add(tableName); // 获取表名
+            }
+
         }
 
         rs.close();
@@ -72,11 +85,23 @@ public class MigrationUtils {
 
     private static List<String> generateInsertDataStatements(Connection conn, String databaseName) throws SQLException {
         List<String> statements = new ArrayList<>();
+        if (!RuleUtils.checkIsExportDB(databaseName)){
+            return statements;
+        }
+
         DatabaseMetaData metaData = conn.getMetaData();
         ResultSet resultSet = metaData.getTables(databaseName, null, null, new String[]{"TABLE"});
         while (resultSet.next()) {
             String tableName = resultSet.getString("TABLE_NAME");
-            ResultSet dataResultSet = conn.createStatement().executeQuery(String.format("SELECT * FROM %s", tableName));
+            ExportDataRule exportDataRule = RuleUtils.getTableDataCondition(databaseName, tableName);
+            if (!exportDataRule.getIncludeData()){
+                continue;
+            }
+            String where = exportDataRule.getWhere();
+            String selectSql = String.format("SELECT * FROM %s", tableName);
+            selectSql=RuleUtils.toSetWhere(where,selectSql);
+
+            ResultSet dataResultSet = conn.createStatement().executeQuery(selectSql);
             ResultSetMetaData resultSetMetaData = dataResultSet.getMetaData();
 
             StringBuilder columnNamesBuilder = new StringBuilder();

@@ -4,6 +4,8 @@ import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.druid.util.JdbcConstants;
+import com.example.script.common.rule.ExportDataRule;
+import com.example.script.common.rule.RuleUtils;
 import com.example.script.utils.DBUtils;
 import com.example.script.utils.comparator.BuildSQL;
 
@@ -91,6 +93,16 @@ public class DataComparator {
         Map<Map<String, Object>, Map<String, Object>> data = new HashMap<>();
         Statement stmt = conn.createStatement();
         String sql = String.format("SELECT * FROM `%s`.`%s`;", databaseName, tableName);
+
+            ExportDataRule exportDataRule = RuleUtils.getTableDataCondition(databaseName, tableName);
+            if (!exportDataRule.getIncludeData()){
+                return data;
+            }
+            String where = exportDataRule.getWhere();
+            sql = RuleUtils.toSetWhere(where, sql);
+
+
+
         SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcConstants.MYSQL);
         SQLStatement sqlStatement = parser.parseStatement();
         ResultSet rs = stmt.executeQuery(sqlStatement.toString());
@@ -115,6 +127,9 @@ public class DataComparator {
         stmt.close();
         return data;
     }
+
+
+
     public static Map<String, Map<Map<String, Object>, Map<String, Object>>> fetchData(Connection conn, String databaseName,
                                                                            List<String> tables,
                                                                                         Map<String,Set<String>> theKeys) throws SQLException {
@@ -130,6 +145,12 @@ public class DataComparator {
             }
 
             String sql = String.format(format, databaseName, tableName);
+            ExportDataRule exportDataRule = RuleUtils.getTableDataCondition(databaseName, tableName);
+            if (!exportDataRule.getIncludeData()){
+                continue;
+            }
+            String where = exportDataRule.getWhere();
+            sql = RuleUtils.toSetWhere(where, sql);
             SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcConstants.MYSQL);
             SQLStatement sqlStatement = parser.parseStatement();
             ResultSet rs = stmt.executeQuery(sqlStatement.toString());

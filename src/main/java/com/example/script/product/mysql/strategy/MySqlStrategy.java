@@ -51,7 +51,12 @@ public class MySqlStrategy extends DataBaseStrategy {
         List<Map<String, Object>> rows = new ArrayList<>();
         String selectSql = String.format("SELECT * FROM `%s`.`%s`", databaseName, tableName);
         if (where!=null&&!where.isBlank()){
-            selectSql=String.format("%s WHERE %s",selectSql,where);
+            if (where.contains("limit")){
+                selectSql=String.format("%s %s",selectSql,where);
+            }else {
+                selectSql=String.format("%s WHERE %s",selectSql,where);
+            }
+
         }
         ResultSet dataResultSet = super
                 .getConn()

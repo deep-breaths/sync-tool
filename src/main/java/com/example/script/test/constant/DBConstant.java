@@ -6,7 +6,7 @@ package com.example.script.test.constant;
  */
 public class DBConstant {
     public static final String DRIVER_CLASS_NAME = "com.mysql.cj.jdbc.Driver";
-    public static final String SOURCE_URL = "jdbc:mysql://127.0.0.1:3306/biz-center";
+    public static final String SOURCE_URL = "jdbc:mysql://192.168.30.144:3306/user-center";
     public static final String SOURCE_USERNAME = "root";
     public static final String SOURCE_PASSWORD = "123456";
 

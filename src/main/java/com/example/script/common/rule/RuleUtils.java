@@ -27,16 +27,17 @@ public class RuleUtils {
                         "job_info"))
                 .buildDB("user-center", dbParam -> dbParam.notIsAllData().isMultiTenant(), table -> table
                         .name("sys_dept",
-                              some -> some.where("id=1275397643669949952"))
-                        .name("sys_role", some -> some.where("id=1275397643669949952"))
-                        .name("sys_role_menu", some -> some.where("id=1275397643669949952"))
+                              some -> some.where("dept_id=1"))
+                        .name("sys_role", some -> some.where("id in (1,2,3)"))
+                        .name("sys_role_menu", some -> some.where("role_id in (1,2,3)"))
+                        .name("sys_role_user", some -> some.where("user_id=1275397643669949952"))
                         .name("sys_user", some -> some.where("id=1275397643669949952"))
                 )
                 .buildDB("biz-center", dbParam -> dbParam.notIsAllData().isMultiTenant(), table -> table
                         .name("meeting_display_board_template")
                         .name("meeting_type"))
                 .buildDB("file-center", DBParam::notIsAllData, table -> table
-                        .name("file_info", some -> some.where("bucket_name=sys-file-resource"))
+                        .name("file_info", some -> some.where("bucket_name='sys-file-resource'"))
                         .name("system_material_file_info"))
                 .buildDB("oauth-center", DBParam::isAllData)
                 .buildDB("device-center", DBParam::notIsAllData, table -> table

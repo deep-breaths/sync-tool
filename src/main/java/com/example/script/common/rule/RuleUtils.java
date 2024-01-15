@@ -13,6 +13,8 @@ public class RuleUtils {
     @Getter
     private static Map<String, DBRule> ruleMap;
 
+    private static final String IGNORE = "undo_log";
+
 
     static {
         //默认导出指定数据库的所有表结构（不包含数据），规则中存在的表则表示要导出数据，具体的数据范围单独配置
@@ -81,6 +83,11 @@ public class RuleUtils {
         if (dbRule.getIsAllStruct()) {
             return Boolean.TRUE;
         }
+
+
+        if (tableName.equalsIgnoreCase(IGNORE)){
+            return Boolean.TRUE;
+        }
         Map<String, TableRule> tableRule = dbRule.getTableRule();
         TableRule currentTableRule = tableRule.get(tableName);
         if (currentTableRule == null) {
@@ -94,6 +101,10 @@ public class RuleUtils {
     public static ExportDataRule getTableDataCondition(String databaseName, String tableName) {
         DBRule dbRule = ruleMap.get(databaseName);
         ExportDataRule exportDataRule = new ExportDataRule();
+        if (tableName.equalsIgnoreCase(IGNORE)){
+            exportDataRule.setIncludeData(Boolean.FALSE);
+            return exportDataRule;
+        }
         if (dbRule.getIsAllData()) {
             exportDataRule.setIncludeData(Boolean.TRUE);
             Map<String, TableRule> tableRule = dbRule.getTableRule();

@@ -77,7 +77,7 @@ public class TableFileComparator {
                     tableName = tableName == null ? null : tableName.replace("`", "");
                     if (DBUtils.tableExistsInTarget(tableName, targetTables)) {
                         // 表存在于目标数据库，比较表结构
-                        String targetTableDDL = DBUtils.showCreateTable(targetConn, null, tableName);
+                        String targetTableDDL = DBUtils.showCreateTable(targetConn, databaseName, tableName);
                         if (!sourceTableDDL.equals(targetTableDDL)) {
                             // 生成差异化语句并添加到diffStatements列表中
                             List<String> alterTableSQL = BuildSQL.generateAlterTableSQL(sourceTableDDL, targetTableDDL);

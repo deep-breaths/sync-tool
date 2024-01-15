@@ -48,20 +48,25 @@ public class DataComparator {
     }
 
     private static void getDiffDML(Connection sourceConn, Connection targetConn, String database, String table,
-                                List<String> inserts, List<String> updates, List<String> deletes) {
+                                   List<String> inserts, List<String> updates, List<String> deletes) {
         try {
             Map<String, Set<String>> sourceKeys = DBUtils.getPrimaryOrUniqueKeys(sourceConn, database, table);
             Map<String, Set<String>> targetKeys = DBUtils.getPrimaryOrUniqueKeys(targetConn, database, table);
 
             Set<String> keys = null;
-            for (Map.Entry<String, Set<String>> sourceKey : sourceKeys.entrySet()){
+            for (Map.Entry<String, Set<String>> sourceKey : sourceKeys.entrySet()) {
                 Set<String> value = sourceKey.getValue();
                 if (targetKeys.containsValue(value)) {
                     keys = value;
                     break;
                 }
-        }
-            keys= keys == null ? sourceKeys.entrySet().stream().findFirst().map(Map.Entry::getValue).orElse(null): keys;
+            }
+            keys = keys == null ? sourceKeys
+                    .entrySet()
+                    .stream()
+                    .findFirst()
+                    .map(Map.Entry::getValue)
+                    .orElse(null) : keys;
 
             Map<Map<String, Object>, Map<String, Object>> sourceData = fetchData(sourceConn, database, table, keys);
             Map<Map<String, Object>, Map<String, Object>> targetData = fetchData(targetConn, database, table, keys);
@@ -89,23 +94,36 @@ public class DataComparator {
     }
 
     public static Map<Map<String, Object>, Map<String, Object>> fetchData(Connection conn, String databaseName,
-                                                                     String tableName, Set<String> keys) throws SQLException {
+                                                                          String tableName, Set<String> keys) throws SQLException {
         Map<Map<String, Object>, Map<String, Object>> data = new HashMap<>();
         Statement stmt = conn.createStatement();
         String sql = String.format("SELECT * FROM `%s`.`%s`;", databaseName, tableName);
 
-            ExportDataRule exportDataRule = RuleUtils.getTableDataCondition(databaseName, tableName);
-            if (!exportDataRule.getIncludeData()){
-                return data;
-            }
-            String where = exportDataRule.getWhere();
-            sql = RuleUtils.toSetWhere(where, sql);
-
+        ExportDataRule exportDataRule = RuleUtils.getTableDataCondition(databaseName, tableName);
+        if (!exportDataRule.getIncludeData()) {
+            return data;
+        }
+        String where = exportDataRule.getWhere();
+        sql = RuleUtils.toSetWhere(where, sql);
 
 
         SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcConstants.MYSQL);
         SQLStatement sqlStatement = parser.parseStatement();
-        ResultSet rs = stmt.executeQuery(sqlStatement.toString());
+        ResultSet rs = null;
+        try {
+            rs = stmt.executeQuery(sqlStatement.toString());
+        } catch (SQLSyntaxErrorException e) {
+            if (e.getMessage().startsWith("Unknown database") || (e.getMessage().startsWith("Table") && e
+                    .getMessage()
+                    .endsWith("doesn't exist"))) {
+                return data;
+            }else {
+                throw e;
+            }
+        }
+        if (rs == null) {
+            return data;
+        }
         ResultSetMetaData metaData = rs.getMetaData();
 
         while (rs.next()) {
@@ -129,24 +147,23 @@ public class DataComparator {
     }
 
 
-
     public static Map<String, Map<Map<String, Object>, Map<String, Object>>> fetchData(Connection conn, String databaseName,
-                                                                           List<String> tables,
-                                                                                        Map<String,Set<String>> theKeys) throws SQLException {
+                                                                                       List<String> tables,
+                                                                                       Map<String, Set<String>> theKeys) throws SQLException {
         Map<String, Map<Map<String, Object>, Map<String, Object>>> data = new HashMap<>();
         for (String tableName : tables) {
             Statement stmt = conn.createStatement();
-            Set<String> keys=theKeys.get(tableName);
+            Set<String> keys = theKeys.get(tableName);
             String format;
-            if (tableName.startsWith("`")&&tableName.endsWith("`")){
+            if (tableName.startsWith("`") && tableName.endsWith("`")) {
                 format = "SELECT * FROM `%s`.%s;";
-            }else {
-                format=  "SELECT * FROM `%s`.`%s`;";
+            } else {
+                format = "SELECT * FROM `%s`.`%s`;";
             }
 
             String sql = String.format(format, databaseName, tableName);
             ExportDataRule exportDataRule = RuleUtils.getTableDataCondition(databaseName, tableName);
-            if (!exportDataRule.getIncludeData()){
+            if (!exportDataRule.getIncludeData()) {
                 continue;
             }
             String where = exportDataRule.getWhere();

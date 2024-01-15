@@ -98,7 +98,7 @@ public class MigrationUtils {
                 continue;
             }
             String where = exportDataRule.getWhere();
-            String selectSql = String.format("SELECT * FROM %s", tableName);
+            String selectSql = String.format("SELECT * FROM `%s`.`%s`",databaseName,tableName);
             selectSql=RuleUtils.toSetWhere(where,selectSql);
 
             ResultSet dataResultSet = conn.createStatement().executeQuery(selectSql);

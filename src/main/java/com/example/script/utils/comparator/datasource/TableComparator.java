@@ -39,6 +39,10 @@ public class TableComparator {
         }
         DatabaseMetaData sourceMetaData = sourceConn.getMetaData();
         DatabaseMetaData targetMetaData = targetConn.getMetaData();
+        List<String> allDatabases = DBUtils.getAllDatabases(targetConn);
+        if (!allDatabases.contains(databaseName)){
+            diffStatements.add(String.format("CREATE DATABASE IF NOT EXISTS `%s`",databaseName));
+        }
 
         // 获取源数据库和目标数据库的表列表
         ResultSet sourceTables = sourceMetaData.getTables(databaseName, null, null, new String[]{"TABLE"});
@@ -51,8 +55,8 @@ public class TableComparator {
             }
             if (DBUtils.tableExistsInTarget(tableName, targetTables)) {
                 // 表存在于目标数据库，比较表结构
-                String sourceTableDDL = DBUtils.showCreateTable(sourceConn, null, tableName);
-                String targetTableDDL = DBUtils.showCreateTable(targetConn, null, tableName);
+                String sourceTableDDL = DBUtils.showCreateTable(sourceConn, databaseName, tableName);
+                String targetTableDDL = DBUtils.showCreateTable(targetConn, databaseName, tableName);
                 if (!sourceTableDDL.equals(targetTableDDL)) {
                     // 生成差异化语句并添加到diffStatements列表中
                     List<String> alterTableSQL = BuildSQL.generateAlterTableSQL(sourceTableDDL, targetTableDDL);
@@ -62,7 +66,7 @@ public class TableComparator {
                 }
             } else {
                 // 表不存在于目标数据库，生成创建表的SQL语句并添加到diffStatements列表中
-                String sourceTableDDL = DBUtils.showCreateTable(sourceConn, null, tableName);
+                String sourceTableDDL = DBUtils.showCreateTable(sourceConn, databaseName, tableName);
                 diffStatements.add(sourceTableDDL);
             }
         }

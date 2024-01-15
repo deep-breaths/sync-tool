@@ -30,10 +30,10 @@ public class ScriptApplication {
     public static void main(String[] args) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start("计时");
-        //getSQL();
+        getSQL();
         //getSQLBySourceFile();
 
-        getRule();
+        //getRule();
 
 
         stopWatch.stop();

@@ -97,7 +97,13 @@ public class RuleUtils {
         return Boolean.TRUE;
 
     }
-public static Boolean checkThisDbIsExportData(String databaseName) {
+
+    /**
+     * 检查当前数据库是否导出数据
+     * @param databaseName
+     * @return
+     */
+    public static Boolean checkThisDbIsExportData(String databaseName) {
     DBRule dbRule = ruleMap.get(databaseName);
     if (dbRule==null){
         return Boolean.FALSE;

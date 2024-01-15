@@ -97,7 +97,17 @@ public class RuleUtils {
         return Boolean.TRUE;
 
     }
+public static Boolean checkThisDbIsExportStruct(String databaseName) {
+    DBRule dbRule = ruleMap.get(databaseName);
+    if (dbRule==null){
+        return Boolean.FALSE;
+    }
+    if (!dbRule.getIncludeData()){
+        return Boolean.FALSE;
+    }
 
+    return Boolean.TRUE;
+}
     public static ExportDataRule getTableDataCondition(String databaseName, String tableName) {
         DBRule dbRule = ruleMap.get(databaseName);
         ExportDataRule exportDataRule = new ExportDataRule();

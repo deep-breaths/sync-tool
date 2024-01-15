@@ -139,6 +139,8 @@ public abstract class DataBaseStrategy implements DataSourceStrategy {
             Map<String, List<Map<String, Object>>> getData = toGetDataByDataBase(databaseName);
             if (getData!=null&&!getData.isEmpty()){
                 result.put(databaseName, getData);
+            }else if (RuleUtils.checkThisDbIsExportStruct(databaseName)){
+                result.put(databaseName, new HashMap<>());
             }
 
         }

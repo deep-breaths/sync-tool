@@ -97,7 +97,7 @@ public class RuleUtils {
         return Boolean.TRUE;
 
     }
-public static Boolean checkThisDbIsExportStruct(String databaseName) {
+public static Boolean checkThisDbIsExportData(String databaseName) {
     DBRule dbRule = ruleMap.get(databaseName);
     if (dbRule==null){
         return Boolean.FALSE;

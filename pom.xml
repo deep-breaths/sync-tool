@@ -11,6 +11,12 @@
     <properties>
         <java.version>21</java.version>
     </properties>
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+    </repositories>
     <dependencies>
 
         <dependency>
@@ -24,11 +30,11 @@
             <artifactId>druid</artifactId>
             <version>1.2.20</version>
         </dependency>
-        <dependency>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-core</artifactId>
-            <version>4.23.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.liquibase</groupId>-->
+<!--            <artifactId>liquibase-core</artifactId>-->
+<!--            <version>4.23.0</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
@@ -38,6 +44,7 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.30</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
@@ -87,7 +94,15 @@
                     <!-- mainClass is used to specify the path to the main method class -->
                     <mainClass>com.example.script.ScriptApplication</mainClass>
                     <buildArgs>
-                        --no-fallback
+                        <!-- no-fallback 选项告诉 GraalVM 的 native-image 工具在编译时不生成垫片，以减小本机映像的大小和提高性能。-->
+                        <arg>--no-fallback</arg>
+                        <arg>-H:+UnlockExperimentalVMOptions</arg>
+
+                        <arg>-H:IncludeResources="^.*\.(csv|yaml|yml|txt|properties)$"</arg>
+                        <arg>--initialize-at-run-time=com.mysql.cj.jdbc.Driver,com.mysql.cj.jdbc.AbandonedConnectionCleanupThread,java.sql.DriverManager</arg>
+                        <arg>-H:IncludeResourceBundles=com.mysql.cj.LocalizedErrorMessages</arg>
+                        <arg>-H:IncludeLocales=zh_CN,en</arg>
+                        <arg>-H:+AddAllCharsets</arg>
                     </buildArgs>
                 </configuration>
                 <executions>

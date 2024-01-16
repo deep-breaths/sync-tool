@@ -38,7 +38,7 @@ public class TableFileComparator {
             try {
                 List<String> diffStatements = compareTableSchema(tables, targetConn, databaseName);
                 if (!diffStatements.isEmpty()) {
-                    result.put(DIFF_TABLE, Map.of(databaseName, diffStatements));
+                    result.computeIfAbsent(DIFF_TABLE,key->new HashMap<>()).put(databaseName, diffStatements);
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);

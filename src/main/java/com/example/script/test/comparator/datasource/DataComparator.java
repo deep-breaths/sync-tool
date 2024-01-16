@@ -32,13 +32,13 @@ public class DataComparator {
 
             }
             if (!inserts.isEmpty()) {
-                result.put(DML_INSERT, Map.of(database, inserts));
+                result.computeIfAbsent(DML_INSERT,key->new HashMap<>()).put(database, inserts);
             }
             if (!updates.isEmpty()) {
-                result.put(DML_UPDATE, Map.of(database, updates));
+                result.computeIfAbsent(DML_UPDATE,key->new HashMap<>()).put(database, updates);
             }
             if (!deletes.isEmpty()) {
-                result.put(DML_DELETE, Map.of(database, deletes));
+                result.computeIfAbsent(DML_DELETE,key->new HashMap<>()).put(database, deletes);
             }
         }
         return result;

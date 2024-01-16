@@ -23,7 +23,7 @@ public class TableComparator {
         for (String database : databases) {
             List<String> diffStatements = compareTableSchema(sourceConn, targetConn, database);
             if (!diffStatements.isEmpty()) {
-                result.put(DIFF_TABLE, Map.of(database, diffStatements));
+                result.computeIfAbsent(DIFF_TABLE,key->new HashMap<>()).put(database, diffStatements);
             }
 
         }

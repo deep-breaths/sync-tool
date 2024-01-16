@@ -26,10 +26,10 @@ public class MigrationUtils {
             List<String> createTableStatements = generateCreateTableStatements(sourceConn, database);
             List<String> insertDataStatements = generateInsertDataStatements(sourceConn, database);
             if (!createTableStatements.isEmpty()) {
-                result.put(DDL_CREATE, Map.of(database,createTableStatements));
+                result.computeIfAbsent(DDL_CREATE,key->new HashMap<>()).put(database, createTableStatements);
             }
             if (!insertDataStatements.isEmpty()) {
-                result.put(DML_INSERT, Map.of(database, insertDataStatements));
+                result.computeIfAbsent(DML_INSERT, key->new HashMap<>()).put(database, insertDataStatements);
             }
         }
 

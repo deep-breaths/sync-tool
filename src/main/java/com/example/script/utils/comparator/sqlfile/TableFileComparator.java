@@ -40,7 +40,7 @@ public class TableFileComparator {
             try {
                 List<String> diffStatements = compareTableSchema(tables, targetConn, databaseName);
                 if (!diffStatements.isEmpty()) {
-                    result.put(DIFF_TABLE, Map.of(databaseName, diffStatements));
+                    result.computeIfAbsent(DIFF_TABLE,key->new HashMap<>()).put(databaseName, diffStatements);
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -105,7 +105,7 @@ public class TableFileComparator {
         creates.forEach((databaseName, tables) -> {
             List<String> diffStatements = compareTableSchema(tables, targetCreatePath, databaseName);
             if (!diffStatements.isEmpty()) {
-                result.put(DIFF_TABLE, Map.of(databaseName, diffStatements));
+                result.computeIfAbsent(DIFF_TABLE,key->new HashMap<>()).put(databaseName, diffStatements);
             }
             Map<String, Map<String, Set<String>>> tableKeys = TableFileComparator.getPrimaryOrUniqueKeys(tables);
             allKeys.put(databaseName, tableKeys);

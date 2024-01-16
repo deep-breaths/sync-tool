@@ -92,13 +92,13 @@ public class DataFileComparator {
                 });
 
                 if (!inserts.isEmpty()) {
-                    result.put(DML_INSERT, Map.of(databaseName, inserts));
+                    result.computeIfAbsent(DML_INSERT,key->new HashMap<>()).put(databaseName, inserts);
                 }
                 if (!updates.isEmpty()) {
-                    result.put(DML_UPDATE, Map.of(databaseName, updates));
+                    result.computeIfAbsent(DML_UPDATE,key->new HashMap<>()).put(databaseName, updates);
                 }
                 if (!deletes.isEmpty()) {
-                    result.put(DML_DELETE, Map.of(databaseName, deletes));
+                    result.computeIfAbsent(DML_DELETE,key->new HashMap<>()).put(databaseName, deletes);
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -171,13 +171,13 @@ public class DataFileComparator {
             });
 
             if (!inserts.isEmpty()) {
-                result.put(DML_INSERT, Map.of(databaseName, inserts));
+                result.computeIfAbsent(DML_INSERT,key->new HashMap<>()).put(databaseName, inserts);
             }
             if (!updates.isEmpty()) {
-                result.put(DML_UPDATE, Map.of(databaseName, updates));
+                result.computeIfAbsent(DML_UPDATE,key->new HashMap<>()).put(databaseName, updates);
             }
             if (!deletes.isEmpty()) {
-                result.put(DML_DELETE, Map.of(databaseName, deletes));
+                result.computeIfAbsent(DML_DELETE,key->new HashMap<>()).put(databaseName, deletes);
             }
         });
         return result;

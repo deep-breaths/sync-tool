@@ -4,7 +4,10 @@ import com.example.script.common.rule.RuleUtils;
 import com.example.script.utils.DBUtils;
 import com.example.script.utils.comparator.BuildSQL;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +27,7 @@ public class TableComparator {
         for (String database : databases) {
             List<String> diffStatements = compareTableSchema(sourceConn, targetConn, database);
             if (!diffStatements.isEmpty()) {
-                result.put(DIFF_TABLE, Map.of(database, diffStatements));
+                result.computeIfAbsent(DIFF_TABLE,key->new HashMap<>()).put(database, diffStatements);
             }
 
         }

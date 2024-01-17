@@ -46,6 +46,21 @@
             <version>1.18.30</version>
             <scope>compile</scope>
         </dependency>
+
+
+        <!-- Apache calcite -->
+        <dependency>
+            <groupId>org.apache.calcite</groupId>
+            <artifactId>calcite-core</artifactId>
+            <version>1.36.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.calcite.avatica</groupId>
+            <artifactId>avatica</artifactId>
+            <version>1.24.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

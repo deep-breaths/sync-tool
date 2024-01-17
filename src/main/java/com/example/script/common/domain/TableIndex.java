@@ -21,7 +21,7 @@ public class TableIndex {
     private Set<String> compositeCol;
 
     /**
-     * 是否唯一
+     * 是否不是唯一
      */
     private Boolean nonUnique;
     /**

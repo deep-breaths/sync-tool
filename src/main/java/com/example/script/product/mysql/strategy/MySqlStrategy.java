@@ -99,7 +99,7 @@ public class MySqlStrategy extends DataBaseStrategy {
                     .getComment()
                     .toString());
             List<SQLTableElement> tableElementList = createTableStatement.getTableElementList();
-            Set<String> pkList = new LinkedHashSet<>();
+//            Set<String> pkList = new LinkedHashSet<>();
             Set<TableIndex> indexList =new LinkedHashSet<>();
             Set<TableFK> fkList =new LinkedHashSet<>();
             Set<TableColumn> columnInfoList =new LinkedHashSet<>();
@@ -136,10 +136,19 @@ public class MySqlStrategy extends DataBaseStrategy {
                 } else if (sqlTableElement instanceof MySqlPrimaryKey tableElement) {
                     SQLIndexDefinition indexDefinition = tableElement
                             .getIndexDefinition();
-                    pkList = indexDefinition
+                    indexDefinition
                             .getColumns()
-                            .stream().map(x -> replace(x.getExpr().toString()))
-                            .collect(Collectors.toSet());
+                            .forEach(x->{
+                                String columnName = replace(x.getExpr().toString());
+                                TableIndex tableIndex = new TableIndex();
+                                tableIndex.setCompositeCol(Set.of(columnName));
+                                tableIndex.setNonUnique(Boolean.FALSE);
+                                tableIndex.setIndexName(replace(indexDefinition.getName()==null?null:indexDefinition.getName().toString()));
+                                tableIndex.setType("PRIMARY");
+                                indexList.add(tableIndex);
+                            });
+
+
 
                 } else if (sqlTableElement instanceof MySqlUnique tableElement) {
                     SQLIndexDefinition indexDefinition = tableElement
@@ -171,7 +180,6 @@ public class MySqlStrategy extends DataBaseStrategy {
             }
             tableInfo.setTableStatement(tableDDL);
             tableInfo.setFkList(fkList);
-            tableInfo.setPkList(pkList);
             tableInfo.setIndexList(indexList);
             tableInfo.setColumnInfoList(columnInfoList);
             List<String> tableOptions = createTableStatement.getTableOptions().stream().map(x -> String.format("%s = %s",

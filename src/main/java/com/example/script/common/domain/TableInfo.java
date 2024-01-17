@@ -22,7 +22,7 @@ public class TableInfo {
      */
     private String type;
 
-    private Set<String> pkList;
+//    private Set<String> pkList;
 
     /**
      * 索引

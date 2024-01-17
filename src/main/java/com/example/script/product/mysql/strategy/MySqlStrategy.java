@@ -188,7 +188,7 @@ public class MySqlStrategy extends DataBaseStrategy {
                                 tableIndex.setIndexName(replace(indexDefinition.getName() == null ? null : indexDefinition
                                         .getName()
                                         .toString()));
-                                tableIndex.setType("PRIMARY");
+                                tableIndex.setType(indexDefinition.getType());
                                 indexList.add(tableIndex);
                             });
 
@@ -268,19 +268,28 @@ public class MySqlStrategy extends DataBaseStrategy {
                     Key theKey = new Key();
                     SQLIndexDefinition indexDefinition = key
                             .getIndexDefinition();
+
+
+                    if (key instanceof MySqlPrimaryKey) {
+                        theKey.setIsOnly(true);
+                        indexDefinition
+                                .getColumns().forEach(x->{
+                                    String columnName = x.getExpr().toString().replace("`", "");
+                                    theKey.setType(indexDefinition.getType());
+                                    SQLName name = indexDefinition.getName();
+                                    theKey.setName(name == null ? null : name.toString().replace("`", ""));
+                                    theKey.setColumns(Set.of(columnName));
+                                    keys.add(theKey);
+
+                                });
+                        continue;
+
+                    }
                     Set<String> list = indexDefinition
                             .getColumns()
                             .stream().map(x -> x.getExpr().toString().replace("`", ""))
                             .collect(Collectors.toSet());
-
-                    if (key instanceof MySqlPrimaryKey) {
-                        theKey.setIsOnly(true);
-
-                    } else if (key instanceof MySqlUnique) {
-                        theKey.setIsOnly(true);
-                    } else {
-                        theKey.setIsOnly(false);
-                    }
+                    theKey.setIsOnly(key instanceof MySqlUnique);
                     theKey.setType(indexDefinition.getType());
                     SQLName name = indexDefinition.getName();
                     theKey.setName(name == null ? null : name.toString().replace("`", ""));

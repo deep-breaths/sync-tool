@@ -41,6 +41,21 @@ public class SyncData implements Serializable {
      */
     private String dataInfo;
 
+    /**
+     * 行号
+     */
+    private Integer rowNum;
+    /**
+     * 列名
+     */
+    private String colName;
+    /**
+     * 列值
+     */
+    private String colValue;
+
+
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

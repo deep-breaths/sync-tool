@@ -54,9 +54,14 @@ public class SyncIndex implements Serializable {
     private String compositeCol;
 
     /**
-     * 是否唯一
+     * 是否不是唯一
      */
     private Integer nonUnique;
+
+    /**
+     * 索引类型
+     */
+    private String type;
 
     /**
      * 创建时间

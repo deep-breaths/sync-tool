@@ -4,6 +4,7 @@ import com.alibaba.druid.pool.DruidDataSource;
 import com.example.script.common.rule.RuleUtils;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -126,7 +127,11 @@ public class DBUtils {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
             String formattedTimestamp = ((Timestamp) value).toLocalDateTime().format(formatter);
             return "'"+formattedTimestamp+"'";
-        } else {
+        }else if(value instanceof LocalDateTime){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+            String formatted = ((LocalDateTime) value).format(formatter);
+            return "'"+formatted+"'";
+        }else {
             return value.toString();
         }
     }

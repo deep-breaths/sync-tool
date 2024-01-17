@@ -44,17 +44,17 @@ public class MySqlStrategy extends DataBaseStrategy {
     @Override
     public List<Map<String, Object>> toGetDataByTable(String databaseName, String tableName) throws SQLException {
         ExportDataRule exportDataRule = RuleUtils.getTableDataCondition(databaseName, tableName);
-        if (!exportDataRule.getIncludeData()){
+        if (!exportDataRule.getIncludeData()) {
             return new ArrayList<>();
         }
         String where = exportDataRule.getWhere();
         List<Map<String, Object>> rows = new ArrayList<>();
         String selectSql = String.format("SELECT * FROM `%s`.`%s`", databaseName, tableName);
-        if (where!=null&&!where.isBlank()){
-            if (where.startsWith("limit")){
-                selectSql=String.format("%s %s",selectSql,where);
-            }else {
-                selectSql=String.format("%s WHERE %s",selectSql,where);
+        if (where != null && !where.isBlank()) {
+            if (where.startsWith("limit")) {
+                selectSql = String.format("%s %s", selectSql, where);
+            } else {
+                selectSql = String.format("%s WHERE %s", selectSql, where);
             }
 
         }
@@ -70,6 +70,48 @@ public class MySqlStrategy extends DataBaseStrategy {
                 row.put(resultSetMetaData.getColumnName(i), dataResultSet.getObject(i));
             }
             rows.add(row);
+        }
+        return rows;
+    }
+
+    @Override
+    public Map<Integer, List<TableData>> toGetTableDataByTable(String databaseName, String tableName) throws SQLException {
+        ExportDataRule exportDataRule = RuleUtils.getTableDataCondition(databaseName, tableName);
+        if (!exportDataRule.getIncludeData()) {
+            return new LinkedHashMap<>();
+        }
+        String where = exportDataRule.getWhere();
+        Map<Integer, List<TableData>> rows = new LinkedHashMap<>();
+        String selectSql = String.format("SELECT * FROM `%s`.`%s`", databaseName, tableName);
+        if (where != null && !where.isBlank()) {
+            if (where.startsWith("limit")) {
+                selectSql = String.format("%s %s", selectSql, where);
+            } else {
+                selectSql = String.format("%s WHERE %s", selectSql, where);
+            }
+
+        }
+        ResultSet dataResultSet = super
+                .getConn()
+                .createStatement()
+                .executeQuery(selectSql);
+        ResultSetMetaData resultSetMetaData = dataResultSet.getMetaData();
+        int columnCount = resultSetMetaData.getColumnCount();
+        int rowNum = 0;
+        while (dataResultSet.next()) {
+            List<TableData> row = new ArrayList<>();
+            for (int i = 1; i <= columnCount; i++) {
+                TableData tableData = new TableData();
+                tableData.setDbName(databaseName);
+                tableData.setTableName(tableName);
+                tableData.setColName(resultSetMetaData.getColumnName(i));
+                tableData.setColValue(dataResultSet.getObject(i) == null ? null : String.valueOf(dataResultSet.getObject(i)));
+                tableData.setRowNum(rowNum);
+                row.add(tableData);
+            }
+
+            rows.put(rowNum, row);
+            rowNum++;
         }
         return rows;
     }
@@ -100,9 +142,9 @@ public class MySqlStrategy extends DataBaseStrategy {
                     .toString());
             List<SQLTableElement> tableElementList = createTableStatement.getTableElementList();
 //            Set<String> pkList = new LinkedHashSet<>();
-            Set<TableIndex> indexList =new LinkedHashSet<>();
-            Set<TableFK> fkList =new LinkedHashSet<>();
-            Set<TableColumn> columnInfoList =new LinkedHashSet<>();
+            Set<TableIndex> indexList = new LinkedHashSet<>();
+            Set<TableFK> fkList = new LinkedHashSet<>();
+            Set<TableColumn> columnInfoList = new LinkedHashSet<>();
             for (int i = 0; i < tableElementList.size(); i++) {
                 SQLTableElement sqlTableElement = tableElementList.get(i);
                 if (sqlTableElement instanceof SQLColumnDefinition tableElement) {
@@ -138,16 +180,17 @@ public class MySqlStrategy extends DataBaseStrategy {
                             .getIndexDefinition();
                     indexDefinition
                             .getColumns()
-                            .forEach(x->{
+                            .forEach(x -> {
                                 String columnName = replace(x.getExpr().toString());
                                 TableIndex tableIndex = new TableIndex();
                                 tableIndex.setCompositeCol(Set.of(columnName));
                                 tableIndex.setNonUnique(Boolean.FALSE);
-                                tableIndex.setIndexName(replace(indexDefinition.getName()==null?null:indexDefinition.getName().toString()));
+                                tableIndex.setIndexName(replace(indexDefinition.getName() == null ? null : indexDefinition
+                                        .getName()
+                                        .toString()));
                                 tableIndex.setType("PRIMARY");
                                 indexList.add(tableIndex);
                             });
-
 
 
                 } else if (sqlTableElement instanceof MySqlUnique tableElement) {
@@ -160,7 +203,9 @@ public class MySqlStrategy extends DataBaseStrategy {
                     TableIndex tableIndex = new TableIndex();
                     tableIndex.setCompositeCol(columnNames);
                     tableIndex.setNonUnique(Boolean.FALSE);
-                    tableIndex.setIndexName(replace(indexDefinition.getName()==null?null:indexDefinition.getName().toString()));
+                    tableIndex.setIndexName(replace(indexDefinition.getName() == null ? null : indexDefinition
+                            .getName()
+                            .toString()));
                     tableIndex.setType(indexDefinition.getType());
                     indexList.add(tableIndex);
                 } else if (sqlTableElement instanceof MySqlKey tableElement) {
@@ -173,7 +218,9 @@ public class MySqlStrategy extends DataBaseStrategy {
                     TableIndex tableIndex = new TableIndex();
                     tableIndex.setCompositeCol(columnNames);
                     tableIndex.setNonUnique(Boolean.TRUE);
-                    tableIndex.setIndexName(replace(indexDefinition.getName()==null?null:indexDefinition.getName().toString()));
+                    tableIndex.setIndexName(replace(indexDefinition.getName() == null ? null : indexDefinition
+                            .getName()
+                            .toString()));
                     tableIndex.setType(indexDefinition.getType());
                     indexList.add(tableIndex);
                 }
@@ -182,9 +229,13 @@ public class MySqlStrategy extends DataBaseStrategy {
             tableInfo.setFkList(fkList);
             tableInfo.setIndexList(indexList);
             tableInfo.setColumnInfoList(columnInfoList);
-            List<String> tableOptions = createTableStatement.getTableOptions().stream().map(x -> String.format("%s = %s",
-                                                                                                       x.getTarget().toString(), x.getValue().toString()
-            )).toList();
+            List<String> tableOptions = createTableStatement
+                    .getTableOptions()
+                    .stream()
+                    .map(x -> String.format("%s = %s",
+                                            x.getTarget().toString(), x.getValue().toString()
+                    ))
+                    .toList();
             tableInfo.setTableOptions(tableOptions);
             return tableInfo;
         }
@@ -200,7 +251,7 @@ public class MySqlStrategy extends DataBaseStrategy {
 
     @Override
     public TableKey getPrimaryOrUniqueKeys(String tableDDL) {
-        Set<Key> keys =new LinkedHashSet<>();
+        Set<Key> keys = new LinkedHashSet<>();
         SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(tableDDL, JdbcConstants.MYSQL);
         List<SQLStatement> statements = parser.parseStatementList();
 

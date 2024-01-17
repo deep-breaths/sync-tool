@@ -1,6 +1,7 @@
 package com.example.script;
 
 import com.alibaba.druid.util.JdbcConstants;
+import com.example.script.common.domain.TableData;
 import com.example.script.common.domain.TableInfo;
 import com.example.script.common.domain.TableKey;
 import com.example.script.common.expression.Context;
@@ -54,6 +55,7 @@ public class DataSourceFactoryTest {
 //        DataSourceStrategy dataSourceStrategy1 = dataSourceFactory1.getDataSource(JdbcConstants.MYSQL.name());
 //        System.out.println(dataSourceStrategy1);
         Map<String, Map<String, List<Map<String, Object>>>> getInitData = dataSourceStrategy.toGetData();
+        Map<String, Map<String, Map<Integer, List<TableData>>>> getInitTableData = dataSourceStrategy.toGetTableData();
         List<String> allDatabases = dataSourceStrategy.getAllDatabases();
         Map<String, List<String>> tableNames = dataSourceStrategy.getTableNames();
         allDatabases.forEach(System.out::println);
@@ -66,6 +68,7 @@ public class DataSourceFactoryTest {
         Map<String, Map<String, TableInfo>> allTableInfo = dataSourceStrategy.getAllTableInfo();
         tableNames.forEach((key, value)-> System.out.println(key+" >>>>>>>  "+value));
         getInitData.forEach((key, value)-> System.out.println(key+" >>>>>>>  "+value));
+        getInitTableData.forEach((key, value)-> System.out.println(key+" >>>>>>>  "+value));
     }
 
     public void format(Map<String, Map<String, List<String>>> getInitData){

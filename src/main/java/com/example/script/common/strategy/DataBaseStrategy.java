@@ -1,6 +1,7 @@
 package com.example.script.common.strategy;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.example.script.common.domain.TableData;
 import com.example.script.common.domain.TableInfo;
 import com.example.script.common.domain.TableKey;
 import com.example.script.common.rule.RuleUtils;
@@ -137,9 +138,25 @@ public abstract class DataBaseStrategy implements DataSourceStrategy {
         Map<String, Map<String, List<Map<String, Object>>>> result = new LinkedHashMap<>();
         for (String databaseName : allDatabases) {
             Map<String, List<Map<String, Object>>> getData = toGetDataByDataBase(databaseName);
-            if (getData!=null&&!getData.isEmpty()){
+            if (getData != null && !getData.isEmpty()) {
                 result.put(databaseName, getData);
-            }else if (RuleUtils.checkThisDbIsExportData(databaseName)){//当要导出数据但导出的数据为空时插入空数据
+            } else if (RuleUtils.checkThisDbIsExportData(databaseName)) {//当要导出数据但导出的数据为空时插入空数据
+                result.put(databaseName, new HashMap<>());
+            }
+
+        }
+
+        return result;
+    }
+
+    public Map<String, Map<String, Map<Integer, List<TableData>>>> toGetTableData() throws SQLException {
+        List<String> allDatabases = getAllDatabases();
+        Map<String, Map<String, Map<Integer, List<TableData>>>> result = new LinkedHashMap<>();
+        for (String databaseName : allDatabases) {
+            Map<String, Map<Integer, List<TableData>>> getData = toGetTableDataByDataBase(databaseName);
+            if (getData != null && !getData.isEmpty()) {
+                result.put(databaseName, getData);
+            } else if (RuleUtils.checkThisDbIsExportData(databaseName)) {//当要导出数据但导出的数据为空时插入空数据
                 result.put(databaseName, new HashMap<>());
             }
 
@@ -154,6 +171,20 @@ public abstract class DataBaseStrategy implements DataSourceStrategy {
         Map<String, List<Map<String, Object>>> allTableData = new LinkedHashMap<>();
         for (String tableName : tableNames) {
             List<Map<String, Object>> rows = toGetDataByTable(databaseName, tableName);
+            if (rows != null && !rows.isEmpty()) {
+                allTableData.put(tableName, rows);
+            }
+
+
+        }
+        return allTableData;
+    }
+
+    public Map<String, Map<Integer, List<TableData>>> toGetTableDataByDataBase(String databaseName) throws SQLException {
+        List<String> tableNames = getTableNames(databaseName);
+        Map<String, Map<Integer, List<TableData>>> allTableData = new LinkedHashMap<>();
+        for (String tableName : tableNames) {
+            Map<Integer, List<TableData>> rows = toGetTableDataByTable(databaseName, tableName);
             if (rows != null && !rows.isEmpty()) {
                 allTableData.put(tableName, rows);
             }

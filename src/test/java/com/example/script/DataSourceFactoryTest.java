@@ -1,18 +1,15 @@
 package com.example.script;
 
 import com.alibaba.druid.util.JdbcConstants;
-import com.example.script.common.domain.TableData;
-import com.example.script.common.domain.TableInfo;
-import com.example.script.common.domain.TableKey;
+import com.example.script.common.domain.DatabaseInfo;
+import com.example.script.common.entity.*;
 import com.example.script.common.expression.Context;
 import com.example.script.common.expression.DataTableExpression;
 import com.example.script.common.expression.RuleExpression;
 import com.example.script.common.expression.RuleInterpreter;
 import com.example.script.common.factory.DataSourceFactory;
 import com.example.script.common.strategy.DataSourceStrategy;
-import com.example.script.constant.DataSourceTypeEnum;
-import com.example.script.local.entity.SyncCol;
-import com.example.script.local.service.SyncColService;
+import com.example.script.local.service.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,46 +40,48 @@ public class DataSourceFactoryTest {
         System.out.println(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
     }
 
-    private static void getDbData() throws SQLException {
-        DataSourceFactory dataSourceFactory = DataSourceTypeEnum.toGetFactory(0);
-        DataSourceStrategy dataSourceStrategy = dataSourceFactory.getDataSource(JdbcConstants.MYSQL.name());
+    private static DatabaseInfo getDbData() throws SQLException {
+        DataSourceStrategy dataSourceStrategy = DataSourceFactory.getDataSource(JdbcConstants.MYSQL.name());
         dataSourceStrategy.createDataSource(SOURCE_URL, SOURCE_USERNAME, SOURCE_PASSWORD);
-//        DataSourceStrategy dataSourceStrategy2 = dataSourceFactory.getDataSource(JdbcConstants.MYSQL.name());
-//        dataSourceStrategy2.createDataSource(TARGET_URL, TARGET_USERNAME, TARGET_PASSWORD);
-////        dataSourceStrategy.closeConn();
-//        dataSourceStrategy2.closeConn();
-//        DataSourceFactory dataSourceFactory1 = DataSourceTypeEnum.toGetFactory(1);
-//        DataSourceStrategy dataSourceStrategy1 = dataSourceFactory1.getDataSource(JdbcConstants.MYSQL.name());
-//        System.out.println(dataSourceStrategy1);
-        Map<String, Map<String, List<Map<String, Object>>>> getInitData = dataSourceStrategy.toGetData();
-        Map<String, Map<String, Map<Integer, List<TableData>>>> getInitTableData = dataSourceStrategy.toGetTableData();
-        List<String> allDatabases = dataSourceStrategy.getAllDatabases();
-        Map<String, List<String>> tableNames = dataSourceStrategy.getTableNames();
-        allDatabases.forEach(System.out::println);
-        String catalog = dataSourceStrategy.getCatalog();
-        List<String> tableNamesByCatalog = dataSourceStrategy.getTableNamesByCatalog();
-        List<String> tableNames1 = dataSourceStrategy.getTableNames("biz-center");
-        Map<String, List<Map<String, Object>>> getDataByCatalog = dataSourceStrategy.toGetDataByCatalog();
-        Map<String, List<String>> tableStructure = dataSourceStrategy.getTableStructure();
-        Map<String, Map<String, TableKey>> allPrimaryOrUniqueKeys = dataSourceStrategy.getAllPrimaryOrUniqueKeys();
-        Map<String, Map<String, TableInfo>> allTableInfo = dataSourceStrategy.getAllTableInfo();
-        tableNames.forEach((key, value)-> System.out.println(key+" >>>>>>>  "+value));
-        getInitData.forEach((key, value)-> System.out.println(key+" >>>>>>>  "+value));
-        getInitTableData.forEach((key, value)-> System.out.println(key+" >>>>>>>  "+value));
-    }
-
-    public void format(Map<String, Map<String, List<String>>> getInitData){
-
+        DatabaseInfo allTableInfo = dataSourceStrategy.getInitData();
+        System.out.println(allTableInfo);
+        return allTableInfo;
     }
 
     @Autowired
+    private SyncDbService syncDbService;
+    @Autowired
+    private SyncTableService syncTableService;
+    @Autowired
     private SyncColService syncColService;
+    @Autowired
+    private SyncIndexService syncIndexService;
+    @Autowired
+    private SyncFkService syncFkService;
+    @Autowired
+    private SyncDataService syncDataService;
+
+    @Test
+    void saveData() throws SQLException {
+        DatabaseInfo dbData = getDbData();
+        List<SyncDb> dbList = dbData.getDbList();
+        List<SyncTable> tableList= dbData.getTableList();
+        List<SyncCol> colList=dbData.getColList();
+        List<SyncIndex> indexList=dbData.getIndexList();
+        List<SyncFk> fkList=dbData.getFkList();
+        List<SyncData> dataList = dbData.getDataList();
+        syncDbService.saveBatch(dbList);
+        syncTableService.saveBatch(tableList);
+        syncColService.saveBatch(colList);
+        syncIndexService.saveBatch(indexList);
+        syncFkService.saveBatch(fkList);
+        syncDataService.saveBatch(dataList);
+    }
     @Test
     void testSelect(){
         List<SyncCol> columnStructuresList=new ArrayList<>();
         for (int i=0;i<10;i++){
-            SyncCol build = SyncCol.builder()
-                                                     .defaultValue("23" + i).size(4112L+i).build();
+            SyncCol build = new SyncCol().setDefaultValue("23" + i).setSize(4112L+i);
             columnStructuresList.add(build);
         }
         syncColService.saveBatch(columnStructuresList);

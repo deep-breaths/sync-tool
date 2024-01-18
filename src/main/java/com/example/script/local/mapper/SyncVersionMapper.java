@@ -2,7 +2,7 @@ package com.example.script.local.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.example.script.local.entity.SyncVersion;
+import com.example.script.common.entity.SyncVersion;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

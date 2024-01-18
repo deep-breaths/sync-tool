@@ -1,14 +1,13 @@
-package com.example.script.local.entity;
+package com.example.script.common.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * 表字段信息(来源于建表语句的拆解)
@@ -16,12 +15,12 @@ import java.util.Date;
  */
 @TableName(value ="sync_col")
 @Data
-@Builder
+@Accessors(chain = true)
 public class SyncCol implements Serializable {
     /**
      * 
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
@@ -38,11 +37,13 @@ public class SyncCol implements Serializable {
      * 数据库id
      */
     private Long dbId;
-
+    private String dbName;
+    private String tableName;
     /**
      * 字段名
      */
     private String name;
+
 
     /**
      * 字段类型
@@ -57,17 +58,21 @@ public class SyncCol implements Serializable {
     /**
      * 是否为null
      */
-    private String isNullable;
+    private Boolean isNullable;
 
     /**
      * 默认值
      */
     private String defaultValue;
+    /**
+     * 上一个字段
+     */
+    private String lastColumn;
 
     /**
-     * 修改时间
+     * 备注
      */
-    private Date updateTime;
+    private String remarks;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

@@ -1,13 +1,11 @@
-package com.example.script.local.entity;
+package com.example.script.common.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.example.script.common.domain.CommonModel;
 import lombok.Data;
-
-import java.io.Serializable;
-import java.util.Date;
+import lombok.experimental.Accessors;
 
 /**
  * 存储外键信息的表
@@ -15,11 +13,12 @@ import java.util.Date;
  */
 @TableName(value ="sync_fk")
 @Data
-public class SyncFk implements Serializable {
+@Accessors(chain = true)
+public class SyncFk extends CommonModel<SyncFk> {
     /**
      * ID
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
@@ -37,6 +36,8 @@ public class SyncFk implements Serializable {
      */
     private Long tableId;
 
+    private String dbName;
+    private String tableName;
     /**
      * 外键名称
      */
@@ -61,17 +62,4 @@ public class SyncFk implements Serializable {
      * 关联的主键列名
      */
     private String pkColName;
-
-    /**
-     * 创建时间
-     */
-    private Date createTime;
-
-    /**
-     * 修改时间
-     */
-    private Date updateTime;
-
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
 }

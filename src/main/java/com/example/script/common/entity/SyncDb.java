@@ -1,13 +1,12 @@
-package com.example.script.local.entity;
+package com.example.script.common.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.example.script.common.domain.CommonModel;
 import lombok.Data;
-
-import java.io.Serializable;
-import java.util.Date;
+import lombok.experimental.Accessors;
 
 /**
  * 数据库列表
@@ -15,11 +14,12 @@ import java.util.Date;
  */
 @TableName(value ="sync_db")
 @Data
-public class SyncDb implements Serializable {
+@Accessors(chain = true)
+public class SyncDb extends CommonModel<SyncDb> {
     /**
      * 
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.INPUT)
     private Long id;
 
     /**
@@ -31,21 +31,6 @@ public class SyncDb implements Serializable {
      * 数据库名
      */
     private String schemaName;
-
-    /**
-     * 建库语句
-     */
-    private String structure;
-
-    /**
-     * 创建时间
-     */
-    private Date createTime;
-
-    /**
-     * 修改时间
-     */
-    private Date updateTime;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

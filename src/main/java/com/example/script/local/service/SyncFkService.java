@@ -2,7 +2,7 @@ package com.example.script.local.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.example.script.local.entity.SyncFk;
+import com.example.script.common.entity.SyncFk;
 
 /**
 * @author admin

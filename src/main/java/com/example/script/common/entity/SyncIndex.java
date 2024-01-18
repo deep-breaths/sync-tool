@@ -1,13 +1,15 @@
-package com.example.script.local.entity;
+package com.example.script.common.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.example.script.common.domain.CommonModel;
+import com.example.script.config.StringListTypeHandler;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
-import java.io.Serializable;
-import java.util.Date;
+import java.util.List;
 
 /**
  * 存储索引信息的表
@@ -16,11 +18,12 @@ import java.util.Date;
  */
 @TableName(value = "sync_index")
 @Data
-public class SyncIndex implements Serializable {
+@Accessors(chain = true)
+public class SyncIndex extends CommonModel<SyncIndex> {
     /**
      *
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
@@ -38,6 +41,8 @@ public class SyncIndex implements Serializable {
      */
     private Long tableId;
 
+    private String dbName;
+
     /**
      * 表名
      */
@@ -51,28 +56,16 @@ public class SyncIndex implements Serializable {
     /**
      * 复合列
      */
-    private String compositeCol;
+    @TableField(typeHandler = StringListTypeHandler.class)
+    private List<String> compositeCol;
 
     /**
      * 是否不是唯一
      */
-    private Integer nonUnique;
+    private Boolean nonUnique;
 
     /**
      * 索引类型
      */
     private String type;
-
-    /**
-     * 创建时间
-     */
-    private Date createTime;
-
-    /**
-     * 修改时间
-     */
-    private Date updateTime;
-
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
 }

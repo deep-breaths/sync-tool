@@ -1,10 +1,11 @@
-package com.example.script.local.entity;
+package com.example.script.common.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 
@@ -14,11 +15,12 @@ import java.io.Serializable;
  */
 @TableName(value ="sync_data")
 @Data
+@Accessors(chain = true)
 public class SyncData implements Serializable {
     /**
      * 
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
@@ -37,9 +39,14 @@ public class SyncData implements Serializable {
     private Long dbId;
 
     /**
-     * 初始化insert语句
+     * 表名称
      */
-    private String dataInfo;
+    private String tableName;
+
+    /**
+     * 数据库名称
+     */
+    private String dbName;
 
     /**
      * 行号

@@ -1,7 +1,7 @@
 package com.example.script.local.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.script.local.entity.SyncFk;
+import com.example.script.common.entity.SyncFk;
 import com.example.script.local.mapper.SyncFkMapper;
 import com.example.script.local.service.SyncFkService;
 import org.springframework.stereotype.Service;

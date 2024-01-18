@@ -1,7 +1,7 @@
 package com.example.script.local.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.script.local.entity.SyncVersion;
+import com.example.script.common.entity.SyncVersion;
 import com.example.script.local.mapper.SyncVersionMapper;
 import com.example.script.local.service.SyncVersionService;
 import org.springframework.stereotype.Service;

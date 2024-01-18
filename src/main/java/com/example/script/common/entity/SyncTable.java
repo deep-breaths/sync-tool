@@ -1,13 +1,15 @@
-package com.example.script.local.entity;
+package com.example.script.common.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.example.script.common.domain.CommonModel;
+import com.example.script.config.StringListTypeHandler;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
-import java.io.Serializable;
-import java.util.Date;
+import java.util.List;
 
 /**
  * 
@@ -15,11 +17,12 @@ import java.util.Date;
  */
 @TableName(value ="sync_table")
 @Data
-public class SyncTable implements Serializable {
+@Accessors(chain = true)
+public class SyncTable extends CommonModel<SyncTable> {
     /**
      * 
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.INPUT)
     private Long id;
 
     /**
@@ -31,28 +34,12 @@ public class SyncTable implements Serializable {
      * 数据库id
      */
     private Long dbId;
-
+    private String dbName;
     /**
      * 表名
      *
      */
     private String name;
-
-    /**
-     * 建表语句
-     */
-    private String tableInfo;
-
-    /**
-     * 索引
-     */
-    private String indexId;
-
-    /**
-     * 外键
-     */
-    private String fkId;
-
     /**
      * 备注
      */
@@ -63,21 +50,14 @@ public class SyncTable implements Serializable {
      */
     private String type;
 
-    /**
-     * 主键
-     */
-    private String pk;
 
     /**
-     * 创建时间
+     * 建表语句
      */
-    private Date createTime;
-
+    private String tableStatement;
     /**
-     * 修改时间
+     * 编码等 ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC
      */
-    private Date updateTime;
-
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
+    @TableField(typeHandler = StringListTypeHandler.class)
+    private List<String> tableOptions;
 }

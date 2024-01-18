@@ -60,7 +60,7 @@ public class Migration1Tool {
     }
 
     public static String getTableStructure(DruidPooledConnection connection, String tableName) throws SQLException {
-        String sql = STR."SHOW CREATE TABLE \{tableName}";
+        String sql = "SHOW CREATE TABLE "+tableName;
         ResultSet resultSet = connection.createStatement().executeQuery(sql);
         if (resultSet.next()) {
             return resultSet.getString(2);
@@ -76,14 +76,14 @@ public class Migration1Tool {
 
     public static String generateTableStructureSQL(String sourceStructure,String sourceTableName, String targetTableName) {
         // 将源表结构中的表名替换为目标表名
-        return sourceStructure.replaceFirst(STR."CREATE TABLE `\{sourceTableName}`", STR."CREATE TABLE `\{targetTableName}`");
+        return sourceStructure.replaceFirst("CREATE TABLE `"+sourceTableName+"`", "CREATE TABLE `"+targetTableName+"`");
     }
 
     public static List<String> generateTableDataSQL(List<String> sourceData,String sourceTableName,String targetTableName) {
         List<String> targetDataSQL = new ArrayList<>();
         for (String data : sourceData) {
             // 将源表数据中的表名替换为目标表名
-            String targetData = data.replaceFirst(STR."`\{sourceTableName}`", STR."`\{targetTableName}`");
+            String targetData = data.replaceFirst("CREATE TABLE `"+sourceTableName+"`", "CREATE TABLE `"+targetTableName+"`");
             targetDataSQL.add(targetData);
         }
         return targetDataSQL;

@@ -49,11 +49,11 @@ public class BuildSQL {
     public static String buildUpdateSql(String databaseName, String tableName, Map<String, Object> keyValues, Map<String,
             Object> rowData) {
         String setClause = rowData.entrySet().stream()
-                                  .map(entry -> STR."`\{entry.getKey()}` = \{DBUtils.convertJavaType(entry.getValue())}")
+                                  .map(entry -> "`"+entry.getKey()+"` = "+DBUtils.convertJavaType(entry.getValue()))
                                   .collect(Collectors.joining(", "));
 
         String whereClause = keyValues.entrySet().stream()
-                                      .map(entry -> STR."`\{entry.getKey()}` = \{DBUtils.convertJavaType(entry.getValue())}")
+                                      .map(entry ->  "`"+entry.getKey()+"` = "+DBUtils.convertJavaType(entry.getValue()))
                                       .collect(Collectors.joining(" AND "));
 
         String resultSQL;
@@ -70,7 +70,7 @@ public class BuildSQL {
 
     public static String buildDeleteSql(String databaseName, String tableName, Map<String, Object> keyValues) {
         String whereClause = keyValues.entrySet().stream()
-                                      .map(entry -> STR."\{entry.getKey()} = `\{DBUtils.convertJavaType(entry.getValue())}`")
+                                      .map(entry -> "`"+entry.getKey()+"` = "+DBUtils.convertJavaType(entry.getValue()))
                                       .collect(Collectors.joining(" AND "));
         String resultSQL;
         if (databaseName != null) {

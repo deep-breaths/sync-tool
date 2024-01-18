@@ -120,12 +120,12 @@ public class DBUtils {
                 return null;
             }
             case String s -> {
-                return STR."'\{value}'";
+                return "'"+value+"'";
             }
             case Timestamp timestamp -> {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
                 String formattedTimestamp = timestamp.toLocalDateTime().format(formatter);
-                return STR."'\{formattedTimestamp}'";
+                return  "'"+formattedTimestamp+"'";
             }
             default -> {
                 return value.toString();
@@ -167,7 +167,7 @@ public class DBUtils {
         resultSet.close();
         statement.close();
 
-        return STR."\{createTableSQL};";
+        return createTableSQL+";";
     }
 
 }

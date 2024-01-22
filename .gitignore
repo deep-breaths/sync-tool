@@ -38,3 +38,5 @@ build/
 /mvnw
 /mvnw.cmd
 /diff2/
+/tmp/
+/logs/

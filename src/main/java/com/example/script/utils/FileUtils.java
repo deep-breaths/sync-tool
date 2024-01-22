@@ -3,33 +3,41 @@ package com.example.script.utils;
 import com.example.script.constant.FolderType;
 import com.example.script.functions.TriConsumer;
 
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author albert lewis
  * @date 2023/12/21
  */
 public class FileUtils {
-    private static final String DEFAULT_PATH="./";
-    public static void saveToFile(String filePath, String fileName, List<String> lines){
-        if(lines==null||lines.isEmpty()){
+    public static final String DEFAULT_PATH="./";
+    public static void saveToFile(String filePath, String fileName, List<String> lines) {
+        if (lines == null || lines.isEmpty()) {
             return;
         }
+
         Path file = Path.of(filePath, fileName);
+
         try {
             if (Files.notExists(file)) {
                 Files.createDirectories(file.getParent());
                 Files.createFile(file);
             }
-            Files.write(file, lines, StandardOpenOption.APPEND);
+
+            try (BufferedWriter writer = Files.newBufferedWriter(file, StandardOpenOption.APPEND)) {
+                for (String line : lines) {
+                    writer.write(line);
+                    writer.newLine();
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -75,6 +83,9 @@ public class FileUtils {
     }
 
     public static Map<String, Map<String, List<String>>> getInit (String path){
+        if (path==null||path.isBlank()){
+            path=DEFAULT_PATH;
+        }
         return FileUtils.getFile(FileUtils.getPath(path, FolderType.INIT));
     }
     public static void getFileByPath(String folderPath,String... folder){
@@ -105,6 +116,9 @@ public class FileUtils {
         try {
             // 获取文件夹路径的Path对象
             Path folder = Paths.get(folderPath);
+            if (!Files.exists(folder) || !Files.isDirectory(folder)) {
+                return allSQLMap;
+            }
 
             // 遍历文件夹及其子文件
             try (var pathStream = Files.walk(folder)) {
@@ -151,15 +165,15 @@ public class FileUtils {
     }
 
     /**
-     *
-     * @param allData 《SQL文件类型，《数据库名，sql语句》》
+     * @param allData        《SQL文件类型，《数据库名，sql语句》》
      * @param fileProcessor
      * @param filePath
+     * @param suffixFilePath
      */
     public static void process(Map<String, Map<String, List<String>>> allData, TriConsumer<String, String,
-            List<String>> fileProcessor, String filePath) {
+            List<String>> fileProcessor, String filePath, String suffixFilePath) {
         allData.forEach((sqlType, sqlMap) -> sqlMap.forEach((dbName, sqlList) -> {
-            String fullPath = filePath + dbName;
+            String fullPath = getPath(filePath, suffixFilePath,dbName);
             fileProcessor.accept(fullPath, sqlType+".sql", sqlList);
         }));
     }
@@ -192,6 +206,22 @@ public class FileUtils {
                 fileProcessor.accept(filePath,"diff_delete.sql", diffDML.get(x));
             }
         });
+    }
+
+    public static void deleteFile(String folderPath){
+        File folder = new File(folderPath);
+        if (folder.exists()) {
+            try (Stream<Path> walk = Files.walk(Paths.get(folderPath))) {
+                walk.sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.println("文件夹删除成功");
+        } else {
+            System.out.println("文件夹不存在");
+        }
     }
 
 }

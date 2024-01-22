@@ -37,6 +37,11 @@ public class MigrationUtils {
         return result;
     }
 
+    public static Map<String,Map<String,List<String>>> getInitSQL(String path){
+
+        return FileUtils.getInit(path);
+    }
+
 
     private static List<String> generateCreateTableStatements(Connection conn, String databaseName) throws SQLException {
         List<String> statements = new ArrayList<>();

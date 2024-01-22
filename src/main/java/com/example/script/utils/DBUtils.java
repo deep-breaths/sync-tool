@@ -122,7 +122,7 @@ public class DBUtils {
         if (value == null) {
             return null;
         } else if (value instanceof String) {
-            return "'"+ value+"'";
+            return "'"+addEscapeCharacters(value.toString())+"'";
         } else if (value instanceof Timestamp) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
             String formattedTimestamp = ((Timestamp) value).toLocalDateTime().format(formatter);
@@ -134,6 +134,15 @@ public class DBUtils {
         }else {
             return value.toString();
         }
+    }
+    private static String addEscapeCharacters(String value) {
+        value = value.replace("\\", "\\\\"); // 转义反斜杠
+        value = value.replace("'", "\\'");   // 转义单引号
+        value = value.replace("\n", "\\n");   // 转义单引号
+        value = value.replace("\r", "\\r");   // 转义单引号
+        value = value.replace("\t", "\\t");   // 转义单引号
+        // 添加其他需要转义的特殊字符
+        return value;
     }
 
     public static boolean tableExistsInTarget(String tableName, ResultSet targetTables) throws SQLException {

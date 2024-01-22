@@ -10,7 +10,7 @@ import java.util.Set;
  */
 public class DiffDDL {
    private Map<String, Map<String, List<String>>> diffSchemas;
-   private Map<String, Map<String, Map<String, Set<String>>>> keys;
+   private Map<String, Map<String, Map<String, Set<String>>>> sourceKeys;
 
     public Map<String, Map<String, List<String>>> getDiffSchemas() {
         return diffSchemas;
@@ -20,11 +20,11 @@ public class DiffDDL {
         this.diffSchemas = diffSchemas;
     }
 
-    public Map<String, Map<String, Map<String, Set<String>>>> getKeys() {
-        return keys;
+    public Map<String, Map<String, Map<String, Set<String>>>> getSourceKeys() {
+        return sourceKeys;
     }
 
-    public void setKeys(Map<String, Map<String, Map<String, Set<String>>>> keys) {
-        this.keys = keys;
+    public void setSourceKeys(Map<String, Map<String, Map<String, Set<String>>>> sourceKeys) {
+        this.sourceKeys = sourceKeys;
     }
 }

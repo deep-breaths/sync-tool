@@ -4,19 +4,14 @@ import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlInsertStatement;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlExportParameterVisitor;
+import com.alibaba.druid.sql.parser.ParserException;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.druid.util.JdbcConstants;
 import com.example.script.constant.SQLSaveType;
-import com.example.script.domain.DiffDDL;
 import com.example.script.domain.FetchData;
-import com.example.script.utils.DBUtils;
-import com.example.script.utils.FileUtils;
 import com.example.script.utils.comparator.BuildSQL;
-import com.example.script.utils.comparator.datasource.DataComparator;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.*;
 
 import static com.example.script.constant.SQLSaveType.*;
@@ -27,17 +22,22 @@ import static com.example.script.constant.SQLSaveType.*;
  */
 public class DataFileComparator {
 
-    public static Map<String, Map<String, List<String>>> getDiffDML(DiffDDL diffDDL, Connection targetConn) throws SQLException {
+    public static Map<String, Map<String, List<String>>> getDiffDML(Map<String, Map<String, List<String>>> sourceInitSQL, Map<String, Map<String, List<String>>> targetInitSQL, Map<String,
+            Map<String, Map<String, Set<String>>>> allTableKeys, Map<String, Map<String, Map<String, Set<String>>>> targetAllTableKeys) {
         Map<String, Map<String, List<String>>> result = new HashMap<>();
-        Map<String, Map<String, Map<String, Set<String>>>> allTableKeys = diffDDL.getKeys();
-        Map<String, Map<String, Set<String>>> allKeys = new HashMap<>();
-
+        if (targetInitSQL == null) {
+            targetInitSQL = new LinkedHashMap<>();
+        }
+        boolean exist = !targetInitSQL.isEmpty();
+        Map<String, Map<String, Set<String>>> allKeys = new LinkedHashMap<>();
         allTableKeys.forEach((databaseName, tables) -> {
             Map<String, Set<String>> tableKeys = new HashMap<>();
+            Map<String, Map<String, Set<String>>> targetTableKeys = targetAllTableKeys.get(databaseName);
             tables.forEach((tableName, sourceKeys) -> {
-                try {
-                    Map<String, Set<String>> targetKeys = DBUtils.getPrimaryOrUniqueKeys(targetConn, databaseName, tableName);
-                    Set<String> keys = null;
+                Set<String> keys = null;
+                if (exist) {
+                    Map<String, Set<String>> targetKeys = targetTableKeys.get(tableName) == null ? new HashMap<>() : targetTableKeys.get(tableName);
+
                     for (Map.Entry<String, Set<String>> sourceKey : sourceKeys.entrySet()) {
                         Set<String> value = sourceKey.getValue();
                         if (targetKeys.containsValue(value)) {
@@ -45,89 +45,8 @@ public class DataFileComparator {
                             break;
                         }
                     }
-                    keys = keys == null ? sourceKeys
-                            .entrySet()
-                            .stream()
-                            .findFirst()
-                            .map(Map.Entry::getValue)
-                            .orElse(null) : keys;
-                    tableKeys.put(tableName, keys);
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
                 }
-            });
-            allKeys.put(databaseName, tableKeys);
 
-
-        });
-
-        Map<String, List<String>> sourceInserts = getInserts();
-        sourceInserts.forEach((databaseName, insetSQLs) -> {
-            try {
-
-
-                Map<String, Map<Map<String, Object>, Map<String, Object>>> sourceFetchData = DataFileComparator.fetchData(insetSQLs, allKeys.get(databaseName));
-                List<String> tables = sourceFetchData.keySet().stream().toList();
-                Map<String, Map<Map<String, Object>, Map<String, Object>>> targetFetchData = DataComparator.fetchData(targetConn, databaseName, tables, allKeys.get(databaseName));
-                List<String> inserts = new ArrayList<>();
-                List<String> updates = new ArrayList<>();
-                List<String> deletes = new ArrayList<>();
-                sourceFetchData.forEach((tableName, sourceData) -> {
-                    Map<Map<String, Object>, Map<String, Object>> targetData = targetFetchData.get(tableName);
-                    // 检测变化
-                    for (Map.Entry<Map<String, Object>, Map<String, Object>> sourceEntry : sourceData.entrySet()) {
-                        if (!targetData.containsKey(sourceEntry.getKey())) {
-                            inserts.add(BuildSQL.buildInsertSql(databaseName, tableName, sourceEntry.getValue()));
-                        } else if (!sourceEntry.getValue().equals(targetData.get(sourceEntry.getKey()))) {
-                            updates.add(BuildSQL.buildUpdateSql(databaseName, tableName, sourceEntry.getKey(), sourceEntry.getValue()));
-                        }
-                    }
-
-                    for (Map<String, Object> key : targetData.keySet()) {
-                        if (!sourceData.containsKey(key)) {
-                            deletes.add(BuildSQL.buildDeleteSql(databaseName, tableName, key));
-                        }
-                    }
-
-                });
-
-                if (!inserts.isEmpty()) {
-                    result.computeIfAbsent(DML_INSERT,key->new HashMap<>()).put(databaseName, inserts);
-                }
-                if (!updates.isEmpty()) {
-                    result.computeIfAbsent(DML_UPDATE,key->new HashMap<>()).put(databaseName, updates);
-                }
-                if (!deletes.isEmpty()) {
-                    result.computeIfAbsent(DML_DELETE,key->new HashMap<>()).put(databaseName, deletes);
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        return result;
-
-    }
-
-    public static Map<String, Map<String, List<String>>> getDiffDML(DiffDDL diffDDL, DiffDDL targetDiffDDL,
-                                                                    String targetCreatePath) {
-        Map<String, Map<String, List<String>>> result = new HashMap<>();
-        Map<String, Map<String, Map<String, Set<String>>>> allTableKeys = diffDDL.getKeys();
-        Map<String, Map<String, Map<String, Set<String>>>> targetAllTableKeys = targetDiffDDL.getKeys();
-
-        Map<String, Map<String, Set<String>>> allKeys = new LinkedHashMap<>();
-        allTableKeys.forEach((databaseName, tables) -> {
-            Map<String, Set<String>> tableKeys = new HashMap<>();
-            Map<String, Map<String, Set<String>>> targetTableKeys = targetAllTableKeys.get(databaseName);
-            tables.forEach((tableName, sourceKeys) -> {
-                Map<String, Set<String>> targetKeys = targetTableKeys.get(tableName) == null ? new HashMap<>() : targetTableKeys.get(tableName);
-                Set<String> keys = null;
-                for (Map.Entry<String, Set<String>> sourceKey : sourceKeys.entrySet()) {
-                    Set<String> value = sourceKey.getValue();
-                    if (targetKeys.containsValue(value)) {
-                        keys = value;
-                        break;
-                    }
-                }
                 keys = keys == null ? sourceKeys
                         .entrySet()
                         .stream()
@@ -142,8 +61,8 @@ public class DataFileComparator {
         });
 
 
-        Map<String, List<String>> sourceInserts = getInserts();
-        Map<String, List<String>> targetInserts = getInserts(targetCreatePath);
+        Map<String, List<String>> sourceInserts = sourceInitSQL.get(SQLSaveType.DML_INSERT);
+        Map<String, List<String>> targetInserts = targetInitSQL.get(SQLSaveType.DML_INSERT) == null ? new LinkedHashMap<>() : targetInitSQL.get(SQLSaveType.DML_INSERT);
         sourceInserts.forEach((databaseName, insetSQLs) -> {
 
             Map<String, Map<Map<String, Object>, Map<String, Object>>> sourceFetchData = DataFileComparator.fetchData(insetSQLs, allKeys.get(databaseName));
@@ -152,7 +71,8 @@ public class DataFileComparator {
             List<String> updates = new ArrayList<>();
             List<String> deletes = new ArrayList<>();
             sourceFetchData.forEach((tableName, sourceData) -> {
-                Map<Map<String, Object>, Map<String, Object>> targetData = targetFetchData.get(tableName);
+                Map<Map<String, Object>, Map<String, Object>> targetData = targetFetchData.get(tableName) == null ?
+                        new LinkedHashMap<>() : targetFetchData.get(tableName);
                 // 检测变化
                 for (Map.Entry<Map<String, Object>, Map<String, Object>> sourceEntry : sourceData.entrySet()) {
                     if (!targetData.containsKey(sourceEntry.getKey())) {
@@ -171,13 +91,13 @@ public class DataFileComparator {
             });
 
             if (!inserts.isEmpty()) {
-                result.computeIfAbsent(DML_INSERT,key->new HashMap<>()).put(databaseName, inserts);
+                result.computeIfAbsent(DML_INSERT, key -> new HashMap<>()).put(databaseName, inserts);
             }
             if (!updates.isEmpty()) {
-                result.computeIfAbsent(DML_UPDATE,key->new HashMap<>()).put(databaseName, updates);
+                result.computeIfAbsent(DML_UPDATE, key -> new HashMap<>()).put(databaseName, updates);
             }
             if (!deletes.isEmpty()) {
-                result.computeIfAbsent(DML_DELETE,key->new HashMap<>()).put(databaseName, deletes);
+                result.computeIfAbsent(DML_DELETE, key -> new HashMap<>()).put(databaseName, deletes);
             }
         });
         return result;
@@ -193,6 +113,9 @@ public class DataFileComparator {
     public static Map<String, Map<Map<String, Object>, Map<String, Object>>> fetchData(List<String> sqlList,
                                                                                        Map<String, Set<String>> keys) {
         Map<String, Map<Map<String, Object>, Map<String, Object>>> data = new HashMap<>();
+        if (sqlList == null) {
+            return data;
+        }
         for (String sql : sqlList) {
             FetchData fetchData = fetchData(sql, keys);
             String tableName = fetchData.getTableName();
@@ -215,7 +138,14 @@ public class DataFileComparator {
         String tableName = null;
 
         SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcConstants.MYSQL);
-        SQLStatement sqlStatement = parser.parseStatement();
+        SQLStatement sqlStatement=null;
+        try {
+            sqlStatement = parser.parseStatement();
+        } catch (ParserException e) {
+            System.out.println(sql);
+            throw e;
+        }
+
         if (sqlStatement instanceof MySqlInsertStatement insertStatement) {
             tableName = insertStatement.getTableName().getSimpleName();
             tableName = tableName == null ? null : tableName.replace("`", "");
@@ -269,16 +199,6 @@ public class DataFileComparator {
         fetchData.setTableName(tableName);
         fetchData.setData(data);
         return fetchData;
-    }
-
-    public static Map<String, List<String>> getInserts() {
-        //《数据库名，建表语句》
-        return FileUtils.getInitSQLByDefault().get(SQLSaveType.DML_INSERT);
-    }
-
-    public static Map<String, List<String>> getInserts(String path) {
-        //《数据库名，建表语句》
-        return FileUtils.getInit(path).get(SQLSaveType.DML_INSERT);
     }
 
 }

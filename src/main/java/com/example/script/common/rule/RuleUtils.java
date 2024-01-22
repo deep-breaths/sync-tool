@@ -2,6 +2,7 @@ package com.example.script.common.rule;
 
 import com.example.script.common.rule.condition.DBParam;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import java.util.Map;
  */
 public class RuleUtils {
     @Getter
+    @Setter
     private static Map<String, DBRule> ruleMap;
 
     private static final String IGNORE = "undo_log";

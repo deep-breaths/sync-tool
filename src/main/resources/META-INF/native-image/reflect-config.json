@@ -1,0 +1,11 @@
+[
+ {
+    "name": "cn.hutool.core.lang.Snowflake",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true,
+    "allPublicConstructors": true,
+    "allPublicMethods": true,
+    "allPublicFields": true
+  }
+]

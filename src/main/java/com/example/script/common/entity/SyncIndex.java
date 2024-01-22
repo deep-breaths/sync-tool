@@ -1,15 +1,11 @@
 package com.example.script.common.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.example.script.common.domain.CommonModel;
-import com.example.script.config.StringListTypeHandler;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.util.List;
 
 /**
  * 存储索引信息的表
@@ -53,11 +49,8 @@ public class SyncIndex extends CommonModel<SyncIndex> {
      */
     private String indexName;
 
-    /**
-     * 复合列
-     */
-    @TableField(typeHandler = StringListTypeHandler.class)
-    private List<String> compositeCol;
+
+    private String compositeCol;
 
     /**
      * 是否不是唯一

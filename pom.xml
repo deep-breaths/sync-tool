@@ -20,7 +20,7 @@
         <com.alibaba.druid.version>1.2.20</com.alibaba.druid.version>
         <org.liquibase.version>4.23.0</org.liquibase.version>
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
-        <knife4j.version>4.4.0</knife4j.version>
+        <knife4j.version>4.5.0</knife4j.version>
     </properties>
     <repositories>
         <repository>
@@ -49,6 +49,17 @@
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis-spring</artifactId>
             <version>3.0.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mybatis</groupId>
+                    <artifactId>mybatis</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.5.15</version>
         </dependency>
 
         <dependency>
@@ -111,32 +122,23 @@
             <artifactId>hutool-all</artifactId>
             <version>5.8.25</version>
         </dependency>
+
     </dependencies>
 
     <build>
         <plugins>
-<!--            <plugin>-->
-<!--                <groupId>org.graalvm.buildtools</groupId>-->
-<!--                <artifactId>native-maven-plugin</artifactId>-->
-<!--                <configuration>-->
-<!--                    &lt;!&ndash; imageName is used to set the name of the generated binary file &ndash;&gt;-->
-<!--                    <imageName>${project.artifactId}</imageName>-->
-<!--                    &lt;!&ndash; mainClass is used to specify the path to the main method class &ndash;&gt;-->
-<!--                    <mainClass>com.example.script.SyncToolApplication</mainClass>-->
-<!--                    <buildArgs>-->
-<!--                        &#45;&#45;no-fallback-->
-<!--                    </buildArgs>-->
-<!--                </configuration>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>build-native</id>-->
-<!--                        <goals>-->
-<!--                            <goal>compile-no-fork</goal>-->
-<!--                        </goals>-->
-<!--                        <phase>package</phase>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.graalvm.buildtools</groupId>
                 <artifactId>native-maven-plugin</artifactId>
@@ -159,23 +161,11 @@
                 </executions>
                 <configuration>
                     <mainClass>com.example.script.SyncToolApplication</mainClass>
-                    <imageName>native-app</imageName>
+                    <imageName>${project.artifactId}</imageName>
                     <buildArgs>
                         <buildArg>--verbose</buildArg>
+                        <buildArg>-H:IncludeResources="^.*\.(csv|yaml|yml|txt|properties|sql)$"</buildArg>
                     </buildArgs>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>21</source>
-                    <target>21</target>
-                    <compilerArgs>--enable-preview</compilerArgs>
                 </configuration>
             </plugin>
         </plugins>

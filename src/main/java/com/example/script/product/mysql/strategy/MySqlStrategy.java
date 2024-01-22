@@ -109,7 +109,7 @@ public class MySqlStrategy extends DataSourceStrategy {
                                 String columnName = replace(x.getExpr().toString());
                                 SyncIndex tableIndex = new SyncIndex();
                                 tableIndex.setDbId(syncTable.getDbId()).setTableId(syncTable.getId()).setDbName(syncTable.getDbName()).setTableName(tableName);
-                                tableIndex.setCompositeCol(List.of(columnName));
+                                tableIndex.setCompositeCol(List.of(columnName).toString());
                                 tableIndex.setNonUnique(Boolean.FALSE);
                                 tableIndex.setIndexName(replace(indexDefinition.getName() == null ? null : indexDefinition
                                         .getName()
@@ -128,7 +128,7 @@ public class MySqlStrategy extends DataSourceStrategy {
                             .toList();
                     SyncIndex tableIndex = new SyncIndex();
                     tableIndex.setDbId(syncTable.getDbId()).setTableId(syncTable.getId()).setDbName(syncTable.getDbName()).setTableName(tableName);
-                    tableIndex.setCompositeCol(columnNames);
+                    tableIndex.setCompositeCol(columnNames.toString());
                     tableIndex.setNonUnique(Boolean.FALSE);
                     tableIndex.setIndexName(replace(indexDefinition.getName() == null ? null : indexDefinition
                             .getName()
@@ -145,7 +145,7 @@ public class MySqlStrategy extends DataSourceStrategy {
                     SyncIndex tableIndex = new SyncIndex();
                     tableIndex.setDbId(syncTable.getDbId()).setTableId(syncTable.getId()).setDbName(syncTable.getDbName()).setTableName(tableName);
 
-                    tableIndex.setCompositeCol(columnNames);
+                    tableIndex.setCompositeCol(columnNames.toString());
                     tableIndex.setNonUnique(Boolean.TRUE);
                     tableIndex.setIndexName(replace(indexDefinition.getName() == null ? null : indexDefinition
                             .getName()
@@ -166,7 +166,7 @@ public class MySqlStrategy extends DataSourceStrategy {
                                             x.getTarget().toString(), x.getValue().toString()
                     ))
                     .toList();
-            syncTable.setTableOptions(tableOptions);
+            syncTable.setTableOptions(tableOptions.toString());
             return tableInfo.setTableInfo(syncTable);
         }
         return null;

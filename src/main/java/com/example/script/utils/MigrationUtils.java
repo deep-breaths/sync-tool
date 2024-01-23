@@ -7,6 +7,10 @@ package com.example.script.utils;
 
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.SQLCreateDatabaseStatement;
+import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlCreateTableStatement;
+import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlDeleteStatement;
+import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlInsertStatement;
+import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlUpdateStatement;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.druid.util.JdbcConstants;
@@ -18,6 +22,8 @@ import java.sql.*;
 import java.util.*;
 
 import static com.example.script.constant.SQLSaveType.*;
+import static com.example.script.utils.DBUtils.BIZ_CENTER;
+import static com.example.script.utils.DBUtils.USER_CENTER;
 
 public class MigrationUtils {
 
@@ -43,65 +49,6 @@ public class MigrationUtils {
 
         return FileUtils.getInit(path);
     }
-
-    public static void toExecuteSQL(DataSource dataSource, String path, String type) {
-
-        Map<String, Map<String, List<String>>> allSqlList = FileUtils.getFileByPath(path, type);
-        if ("init".equalsIgnoreCase(type)) {
-            Map<String, List<String>> listMap = Optional
-                    .ofNullable(allSqlList.get(DDL_CREATE))
-                    .orElse(new LinkedHashMap<>());
-            executeSQL(dataSource, listMap);
-            listMap = Optional
-                    .ofNullable(allSqlList.get(DML_INSERT))
-                    .orElse(new LinkedHashMap<>());
-            executeSQL(dataSource, listMap);
-        } else if ("diff".equalsIgnoreCase(type)) {
-            Map<String, List<String>> listMap = Optional
-                    .ofNullable(allSqlList.get(DIFF_TABLE))
-                    .orElse(new LinkedHashMap<>());
-            executeSQL(dataSource, listMap);
-            listMap = Optional
-                    .ofNullable(allSqlList.get(DML_INSERT))
-                    .orElse(new LinkedHashMap<>());
-            executeSQL(dataSource, listMap);
-            listMap = Optional
-                    .ofNullable(allSqlList.get(DML_UPDATE))
-                    .orElse(new LinkedHashMap<>());
-            executeSQL(dataSource, listMap);
-//            listMap = Optional
-//                    .ofNullable(allSqlList.get(DML_DELETE))
-//                    .orElse(new LinkedHashMap<>());
-//            executeSQL(dataSource, listMap);
-
-        }
-
-    }
-
-    private static void executeSQL(DataSource dataSource, Map<String, List<String>> listMap) {
-        for (Map.Entry<String, List<String>> entry : listMap.entrySet()) {
-            String databaseName = entry.getKey();
-            List<String> sqlList = entry.getValue();
-            System.out.println("更新数据库："+databaseName);
-            for (String sql : sqlList) {
-                try (Connection conn = dataSource.getConnection()) {
-                    SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcConstants.MYSQL);
-                    SQLStatement sqlStatement = parser.parseStatement();
-                    if (sqlStatement instanceof SQLCreateDatabaseStatement) {
-                        conn.createStatement().execute(sql);
-                    } else {
-                        conn.setCatalog(databaseName);
-                        conn.createStatement().execute(sql);
-                    }
-
-                } catch (SQLException e) {
-                    System.err.printf("错误数据库：%s，错误sql：\n %s \n",databaseName,sql);
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-    }
-
 
     private static List<String> generateCreateTableStatements(Connection conn, String databaseName) throws SQLException {
         List<String> statements = new ArrayList<>();
@@ -155,7 +102,7 @@ public class MigrationUtils {
 
     private static List<String> generateInsertDataStatements(Connection conn, String databaseName) throws SQLException {
         List<String> statements = new ArrayList<>();
-        if (!RuleUtils.checkIsExportDB(databaseName)) {
+        if (!RuleUtils.checkThisDbIsExportData(databaseName)) {
             return statements;
         }
 
@@ -214,5 +161,133 @@ public class MigrationUtils {
 
         return statements;
     }
+
+    public static void toExecuteSQL(DataSource dataSource, String path, String type) {
+
+        Map<String, Map<String, List<String>>> allSqlList = FileUtils.getFileByPath(path, type);
+        if ("init".equalsIgnoreCase(type)) {
+            Map<String, List<String>> listMap = Optional
+                    .ofNullable(allSqlList.get(DDL_CREATE))
+                    .orElse(new LinkedHashMap<>());
+            Map<String, List<String>> multiTenantCreate = executeSQL(dataSource, listMap);
+            listMap = Optional
+                    .ofNullable(allSqlList.get(DML_INSERT))
+                    .orElse(new LinkedHashMap<>());
+            Map<String, List<String>> multiTenantInsert = executeSQL(dataSource, listMap);
+
+            List<String> multiTenantDatabases = DBUtils.getMultiTenantDatabases(dataSource);
+            executeMultiTenantSQL(dataSource, multiTenantCreate, multiTenantDatabases);
+            executeMultiTenantSQL(dataSource, multiTenantInsert, multiTenantDatabases);
+
+        } else if ("diff".equalsIgnoreCase(type)) {
+            Map<String, List<String>> listMap = Optional
+                    .ofNullable(allSqlList.get(DIFF_TABLE))
+                    .orElse(new LinkedHashMap<>());
+            Map<String, List<String>> tableDiff = executeSQL(dataSource, listMap);
+            listMap = Optional
+                    .ofNullable(allSqlList.get(DML_INSERT))
+                    .orElse(new LinkedHashMap<>());
+            Map<String, List<String>> insert = executeSQL(dataSource, listMap);
+            listMap = Optional
+                    .ofNullable(allSqlList.get(DML_UPDATE))
+                    .orElse(new LinkedHashMap<>());
+            Map<String, List<String>> update = executeSQL(dataSource, listMap);
+//            listMap = Optional
+//                    .ofNullable(allSqlList.get(DML_DELETE))
+//                    .orElse(new LinkedHashMap<>());
+//            executeSQL(dataSource, listMap);
+
+            List<String> multiTenantDatabases = DBUtils.getMultiTenantDatabases(dataSource);
+            executeMultiTenantSQL(dataSource, tableDiff, multiTenantDatabases);
+            executeMultiTenantSQL(dataSource, insert, multiTenantDatabases);
+            executeMultiTenantSQL(dataSource, update, multiTenantDatabases);
+
+        }
+
+    }
+
+    private static void executeMultiTenantSQL(DataSource dataSource, Map<String, List<String>> multiTenantSql,
+                                              List<String> multiTenantDatabases) {
+        for (String databaseName : multiTenantDatabases) {
+            List<String> sqlList =new ArrayList<>();
+            if (databaseName.endsWith(BIZ_CENTER)) {
+                sqlList = Optional.ofNullable(multiTenantSql.get(BIZ_CENTER)).orElse(new ArrayList<>());
+            }else if (databaseName.endsWith(USER_CENTER)){
+                sqlList = Optional.ofNullable(multiTenantSql.get(USER_CENTER)).orElse(new ArrayList<>());
+            }
+            for (String sql : sqlList) {
+                executeMultiTenantSQL(dataSource, sql, databaseName);
+            }
+        }
+    }
+    private static void executeMultiTenantSQL(DataSource dataSource, String sql,String databaseName) {
+        try (Connection conn = dataSource.getConnection()) {
+            SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcConstants.MYSQL);
+            SQLStatement sqlStatement = parser.parseStatement(); //SQLAlterTableStatement MySqlInsertStatement
+            if (sqlStatement instanceof MySqlInsertStatement statement) {
+                String tableName = statement.getTableName().getSimpleName();
+                tableName=tableName.replace("`","");
+                if (RuleUtils.isMultiTenantData(databaseName, tableName)) {
+                    conn.setCatalog(databaseName);
+                    conn.createStatement().execute(sql);
+                }
+            } else if (sqlStatement instanceof MySqlUpdateStatement statement){
+                String tableName = statement.getTableName().getSimpleName();
+                tableName=tableName.replace("`","");
+                if (RuleUtils.isMultiTenantData(databaseName, tableName)) {
+                    conn.setCatalog(databaseName);
+                    conn.createStatement().execute(sql);
+                }
+            }else if (sqlStatement instanceof MySqlDeleteStatement statement){
+                String tableName = statement.getTableName().getSimpleName();
+                tableName=tableName.replace("`","");
+                if (RuleUtils.isMultiTenantData(databaseName, tableName)) {
+                    conn.setCatalog(databaseName);
+                    conn.createStatement().execute(sql);
+                }
+            }else{
+                conn.setCatalog(databaseName);
+                conn.createStatement().execute(sql);
+            }
+
+        } catch (SQLException e) {
+            System.err.printf("错误租户数据库：%s，错误sql：\n %s \n", databaseName, sql);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Map<String, List<String>> executeSQL(DataSource dataSource, Map<String, List<String>> listMap) {
+        Map<String, List<String>> multiTenantSQL = new LinkedHashMap<>();
+        for (Map.Entry<String, List<String>> entry : listMap.entrySet()) {
+            String databaseName = entry.getKey();
+            List<String> sqlList = entry.getValue();
+            System.out.println("更新数据库：" + databaseName);
+            if (RuleUtils.isMultiTenantDB(databaseName)) {
+                multiTenantSQL.put(databaseName, sqlList);
+            }
+            for (String sql : sqlList) {
+                executeEachSQL(dataSource, sql, databaseName);
+            }
+        }
+        return multiTenantSQL;
+    }
+
+    private static void executeEachSQL(DataSource dataSource, String sql, String databaseName) {
+        try (Connection conn = dataSource.getConnection()) {
+            SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcConstants.MYSQL);
+            SQLStatement sqlStatement = parser.parseStatement();
+            if (sqlStatement instanceof SQLCreateDatabaseStatement) {
+                conn.createStatement().execute(sql);
+            } else {
+                conn.setCatalog(databaseName);
+                conn.createStatement().execute(sql);
+            }
+
+        } catch (SQLException e) {
+            System.err.printf("错误数据库：%s，错误sql：\n %s \n", databaseName, sql);
+            throw new RuntimeException(e);
+        }
+    }
+
 
 }

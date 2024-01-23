@@ -40,7 +40,7 @@ public class Api {
             outputPath=".";
         }
         if (param.getIsExecute()!=null&& param.getIsExecute()&&("init".equalsIgnoreCase(param.getType())||"diff".equalsIgnoreCase(param.getType()))){
-            toExeCuteSQL(param, outputPath);
+            toExecuteSQL(param, outputPath);
             return;
         }
         if ("init".equalsIgnoreCase(param.getType())){
@@ -51,7 +51,7 @@ public class Api {
         }
     }
 
-    private void toExeCuteSQL(Param param, String outputPath) {
+    private void toExecuteSQL(Param param, String outputPath) {
         String targetDataParam = param.getTargetDataParam();
         if (targetDataParam==null||targetDataParam.isBlank()){
             throw new RuntimeException("数据源参数不能为空");

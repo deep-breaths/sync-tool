@@ -3,6 +3,7 @@ package com.example.script.utils;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.example.script.common.rule.RuleUtils;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,6 +16,9 @@ import static com.example.script.constant.DBConstant.DRIVER_CLASS_NAME;
  * @date 2023/12/21
  */
 public class DBUtils {
+
+    public static final String BIZ_CENTER="biz-center";
+    public static final String USER_CENTER="user-center";
 
     /**
      * 创建数据源
@@ -180,6 +184,26 @@ public class DBUtils {
         statement.close();
 
         return createTableSQL+";";
+    }
+    public static List<String> getMultiTenantDatabases(DataSource dataSource) {
+        List<String> databases = new ArrayList<>();
+        try(Connection conn = dataSource.getConnection()) {
+            ResultSet rs = conn.getMetaData().getCatalogs();
+
+            while (rs.next()) {
+                String databaseName = rs.getString(1);
+                if (databaseName.endsWith("-"+BIZ_CENTER)||databaseName.endsWith("-"+USER_CENTER)){
+                    databases.add(databaseName);
+                }
+
+            }
+
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return databases;
     }
 
 }

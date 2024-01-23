@@ -87,7 +87,7 @@ public class RuleUtils {
         }
 
 
-        if (tableName.equalsIgnoreCase(IGNORE)){
+        if (tableName.equalsIgnoreCase(IGNORE)) {
             return Boolean.TRUE;
         }
         Map<String, TableRule> tableRule = dbRule.getTableRule();
@@ -99,21 +99,23 @@ public class RuleUtils {
         return Boolean.TRUE;
 
     }
-public static Boolean checkThisDbIsExportData(String databaseName) {
-    DBRule dbRule = ruleMap.get(databaseName);
-    if (dbRule==null){
-        return Boolean.FALSE;
-    }
-    if (!dbRule.getIncludeData()){
-        return Boolean.FALSE;
+
+    public static Boolean checkThisDbIsExportData(String databaseName) {
+        DBRule dbRule = ruleMap.get(databaseName);
+        if (dbRule == null) {
+            return Boolean.FALSE;
+        }
+        if (!dbRule.getIncludeData()) {
+            return Boolean.FALSE;
+        }
+
+        return Boolean.TRUE;
     }
 
-    return Boolean.TRUE;
-}
     public static ExportDataRule getTableDataCondition(String databaseName, String tableName) {
         DBRule dbRule = ruleMap.get(databaseName);
         ExportDataRule exportDataRule = new ExportDataRule();
-        if (tableName.equalsIgnoreCase(IGNORE)){
+        if (tableName.equalsIgnoreCase(IGNORE)) {
             exportDataRule.setIncludeData(Boolean.FALSE);
             return exportDataRule;
         }
@@ -134,7 +136,7 @@ public static Boolean checkThisDbIsExportData(String databaseName) {
             exportDataRule.setIncludeData(Boolean.FALSE);
             return exportDataRule;
         }
-        if (!currentTableRule.getIncludeData()){
+        if (!currentTableRule.getIncludeData()) {
             exportDataRule.setIncludeData(Boolean.FALSE);
             exportDataRule.setUpdate(currentTableRule.getUpdate());
             return exportDataRule;
@@ -153,14 +155,41 @@ public static Boolean checkThisDbIsExportData(String databaseName) {
     }
 
     public static String toSetWhere(String where, String sql) {
-        if (where !=null&& !where.isBlank()){
-            if (where.startsWith("limit")){
-                sql =String.format("%s %s", sql, where);
-            }else {
-                sql =String.format("%s WHERE %s", sql, where);
+        if (where != null && !where.isBlank()) {
+            if (where.startsWith("limit")) {
+                sql = String.format("%s %s", sql, where);
+            } else {
+                sql = String.format("%s WHERE %s", sql, where);
             }
         }
         return sql;
     }
 
+    public static Boolean isMultiTenantDB(String databaseName) {
+        DBRule dbRule = ruleMap.get(databaseName);
+        if (dbRule.getIsMultiTenant() == null || !dbRule.getIsMultiTenant()) {
+            return Boolean.FALSE;
+        }
+
+        return Boolean.TRUE;
+    }
+    public static Boolean isMultiTenantData(String databaseName,String tableName) {
+        DBRule dbRule = ruleMap.get(databaseName);
+        if (dbRule==null){
+            return Boolean.FALSE;
+        }
+        if (dbRule.getIsMultiTenant() == null || !dbRule.getIsMultiTenant()) {
+            return Boolean.FALSE;
+        }
+        Map<String, TableRule> tableRule = dbRule.getTableRule();
+        TableRule currentTableRule = tableRule.get(tableName);
+        if (currentTableRule==null){
+            return Boolean.FALSE;
+        }
+        if (!currentTableRule.getIsMultiTenant()){
+            return Boolean.FALSE;
+        }
+
+        return Boolean.TRUE;
+    }
 }

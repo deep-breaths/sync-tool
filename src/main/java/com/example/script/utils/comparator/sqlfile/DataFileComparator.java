@@ -32,11 +32,13 @@ public class DataFileComparator {
         Map<String, Map<String, Set<String>>> allKeys = new LinkedHashMap<>();
         allTableKeys.forEach((databaseName, tables) -> {
             Map<String, Set<String>> tableKeys = new HashMap<>();
-            Map<String, Map<String, Set<String>>> targetTableKeys = targetAllTableKeys.get(databaseName);
+            Map<String, Map<String, Set<String>>> targetTableKeys = Optional.ofNullable(targetAllTableKeys.get(databaseName))
+                                                                            .orElse(new LinkedHashMap<>());
             tables.forEach((tableName, sourceKeys) -> {
                 Set<String> keys = null;
                 if (exist) {
-                    Map<String, Set<String>> targetKeys = targetTableKeys.get(tableName) == null ? new HashMap<>() : targetTableKeys.get(tableName);
+                    Map<String, Set<String>> targetKeys = Optional.ofNullable(targetTableKeys.get(tableName))
+                                                                  .orElse(new LinkedHashMap<>());
 
                     for (Map.Entry<String, Set<String>> sourceKey : sourceKeys.entrySet()) {
                         Set<String> value = sourceKey.getValue();
@@ -62,7 +64,8 @@ public class DataFileComparator {
 
 
         Map<String, List<String>> sourceInserts = sourceInitSQL.get(SQLSaveType.DML_INSERT);
-        Map<String, List<String>> targetInserts = targetInitSQL.get(SQLSaveType.DML_INSERT) == null ? new LinkedHashMap<>() : targetInitSQL.get(SQLSaveType.DML_INSERT);
+        Map<String, List<String>> targetInserts = Optional.ofNullable(targetInitSQL.get(SQLSaveType.DML_INSERT))
+                                                          .orElse(new LinkedHashMap<>());
         sourceInserts.forEach((databaseName, insetSQLs) -> {
 
             Map<String, Map<Map<String, Object>, Map<String, Object>>> sourceFetchData = DataFileComparator.fetchData(insetSQLs, allKeys.get(databaseName));
@@ -71,8 +74,8 @@ public class DataFileComparator {
             List<String> updates = new ArrayList<>();
             List<String> deletes = new ArrayList<>();
             sourceFetchData.forEach((tableName, sourceData) -> {
-                Map<Map<String, Object>, Map<String, Object>> targetData = targetFetchData.get(tableName) == null ?
-                        new LinkedHashMap<>() : targetFetchData.get(tableName);
+                Map<Map<String, Object>, Map<String, Object>> targetData =Optional.ofNullable(targetFetchData.get(tableName))
+                                                                                  .orElse(new LinkedHashMap<>());
                 // 检测变化
                 for (Map.Entry<Map<String, Object>, Map<String, Object>> sourceEntry : sourceData.entrySet()) {
                     if (!targetData.containsKey(sourceEntry.getKey())) {
@@ -138,7 +141,7 @@ public class DataFileComparator {
         String tableName = null;
 
         SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcConstants.MYSQL);
-        SQLStatement sqlStatement=null;
+        SQLStatement sqlStatement = null;
         try {
             sqlStatement = parser.parseStatement();
         } catch (ParserException e) {

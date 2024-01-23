@@ -50,7 +50,8 @@ public class TableFileComparator {
         List<String> diffStatements = new ArrayList<>();
 
         // 获取源数据库和目标数据库的表列表
-        List<String> targetCreate = targetALLCreates == null ? new ArrayList<>() : targetALLCreates.get(databaseName);
+        List<String> targetCreate = Optional.ofNullable(targetALLCreates.get(databaseName))
+                                            .orElse(new ArrayList<>());
 
 
         if (targetCreate==null||targetCreate.isEmpty()) {

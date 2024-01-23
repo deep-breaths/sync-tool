@@ -37,6 +37,8 @@ public class Param {
      * 导入导出规则
      */
     private JSONObject rule;
+
+    private String rulePath;
     /**
      * 输出文件路径
      */

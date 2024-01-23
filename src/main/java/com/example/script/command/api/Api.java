@@ -43,11 +43,33 @@ public class Api {
             toExecuteSQL(param, outputPath);
             return;
         }
+        toSetRule(param);
         if ("init".equalsIgnoreCase(param.getType())){
             getInitSQL(param, outputPath);
 
         }else if ("diff".equalsIgnoreCase(param.getType())){
             getDiffSQL(param, outputPath);
+        }
+    }
+
+    private void toSetRule(Param param) {
+        JSONObject rule = param.getRule();
+        String rulePath = param.getRulePath();
+        if (rulePath!=null&&!rulePath.isBlank()){
+            String jsonFile = FileUtils.getJsonFile(rulePath);
+            if (!JSONUtil.isTypeJSON(jsonFile)) {
+                throw new RuntimeException("文件格式不正确");
+            }
+            Map<String, DBRule> ruleMap = JSONUtil.toBean(JSONUtil.parse(rule), new TypeReference<>() {
+            }, true);
+            RuleUtils.setRuleMap(ruleMap);
+            return;
+        }
+
+        if (rule!=null){
+            Map<String, DBRule> ruleMap = JSONUtil.toBean(JSONUtil.parse(rule), new TypeReference<>() {
+            }, true);
+            RuleUtils.setRuleMap(ruleMap);
         }
     }
 
@@ -78,12 +100,7 @@ public class Api {
     }
 
     private void getInitSQL(Param param, String outputPath) {
-        JSONObject rule = param.getRule();
-        if (rule!=null){
-            Map<String, DBRule> ruleMap = JSONUtil.toBean(JSONUtil.parse(rule), new TypeReference<>() {
-            }, true);
-            RuleUtils.setRuleMap(ruleMap);
-        }
+
         String sourceDataParam = param.getSourceDataParam();
         if (sourceDataParam==null||sourceDataParam.isBlank()){
             throw new RuntimeException("数据源参数不能为空");
@@ -93,12 +110,7 @@ public class Api {
     }
 
     private void getDiffSQL(Param param, String outputPath) {
-        JSONObject rule = param.getRule();
-        if (rule!=null){
-            Map<String, DBRule> ruleMap = JSONUtil.toBean(JSONUtil.parse(rule), new TypeReference<>() {
-            }, true);
-            RuleUtils.setRuleMap(ruleMap);
-        }
+
         checkParam(param);
         String sourceType = param.getSourceType();
         String targetType = param.getTargetType();

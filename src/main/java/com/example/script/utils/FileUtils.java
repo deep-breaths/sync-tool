@@ -6,6 +6,7 @@ import com.example.script.functions.TriConsumer;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,10 +51,10 @@ public class FileUtils {
      *
      * @param folderPath
      */
-    public static void getFile(String... folderPath){
+    public static void getSqlFile(String... folderPath){
         if (folderPath!=null){
             for (String s : folderPath) {
-                getFile(s);
+                getSqlFile(s);
             }
         }
     }
@@ -61,7 +62,7 @@ public class FileUtils {
         Map<String,Map<String, Map<String, List<String>>>> result=new HashMap<>();
         if (folder!=null){
             for (String s : folder) {
-                Map<String, Map<String, List<String>>> map = getFile(getPath(DEFAULT_PATH, s));
+                Map<String, Map<String, List<String>>> map = getSqlFile(getPath(DEFAULT_PATH, s));
                 result.put(s,map);
             }
         }
@@ -77,7 +78,7 @@ public class FileUtils {
      */
     public static Map<String, Map<String, List<String>>> getFileByDefault(String folder){
         if (folder!=null){
-                return getFile(getPath(DEFAULT_PATH, folder));
+                return getSqlFile(getPath(DEFAULT_PATH, folder));
         }
         return null;
     }
@@ -86,11 +87,11 @@ public class FileUtils {
         if (path==null||path.isBlank()){
             path=DEFAULT_PATH;
         }
-        return FileUtils.getFile(FileUtils.getPath(path, FolderType.INIT));
+        return FileUtils.getSqlFile(FileUtils.getPath(path, FolderType.INIT));
     }
     public static Map<String, Map<String, List<String>>> getFileByPath(String folderPath, String folder){
         if (folder!=null){
-            return getFile(getPath(folderPath, folder));
+            return getSqlFile(getPath(folderPath, folder));
         }
         return null;
     }
@@ -109,7 +110,7 @@ public class FileUtils {
      * @param folderPath
      * @return 《SQL文件类型，《数据库名，sql语句》》
      */
-    public static Map<String, Map<String, List<String>>> getFile(String folderPath) {
+    public static Map<String, Map<String, List<String>>> getSqlFile(String folderPath) {
         // 创建用于存储数据库名称和SQL列表的Map
         Map<String, Map<String, List<String>>> allSQLMap = new HashMap<>();
         try {
@@ -177,35 +178,6 @@ public class FileUtils {
         }));
     }
 
-//    public static void processInitSQL(Map<String, List<String>> initSQL, TriConsumer<String, String, List<String>> fileProcessor, String filePath) {
-//        initSQL.keySet().forEach(x -> {
-//            if (x.startsWith("InitSQL_create_")) {
-//                fileProcessor.accept(filePath,"create.sql", initSQL.get(x));
-//            } else if (x.startsWith("InitSQL_insert_")) {
-//                fileProcessor.accept(filePath,"insert.sql", initSQL.get(x));
-//            }
-//        });
-//    }
-
-    public static void processDiffDDL(Map<String, List<String>> diffDDL, TriConsumer<String, String, List<String>> fileProcessor, String filePath) {
-        diffDDL.keySet().forEach(x -> {
-            if (x.startsWith("DiffDDL_")) {
-                fileProcessor.accept(filePath,"diff_create.sql", diffDDL.get(x));
-            }
-        });
-    }
-
-    public static void processDiffDML(Map<String, List<String>> diffDML, TriConsumer<String, String, List<String>> fileProcessor, String filePath) {
-        diffDML.keySet().forEach(x -> {
-            if (x.startsWith("DiffDML_insert_")) {
-                fileProcessor.accept(filePath,"diff_insert.sql", diffDML.get(x));
-            } else if (x.startsWith("DiffDML_update_")) {
-                fileProcessor.accept(filePath,"diff_update.sql", diffDML.get(x));
-            } else if (x.startsWith("DiffDML_delete_")) {
-                fileProcessor.accept(filePath,"diff_delete.sql", diffDML.get(x));
-            }
-        });
-    }
 
     public static void deleteFile(String folderPath){
         File folder = new File(folderPath);
@@ -222,5 +194,14 @@ public class FileUtils {
             System.out.println("文件夹不存在");
         }
     }
+public static String getJsonFile(String filePath){
+    String content=null;
+    try {
+        content = Files.readString(Path.of(filePath), StandardCharsets.UTF_8);
 
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+    return content;
+}
 }

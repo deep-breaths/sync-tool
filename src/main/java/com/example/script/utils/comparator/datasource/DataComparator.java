@@ -47,11 +47,11 @@ public class DataComparator {
 
     }
 
-    private static void getDiffDML(Connection sourceConn, Connection targetConn, String database, String table,
+    private static void getDiffDML(Connection sourceConn, Connection targetConn, String databaseName, String tableName,
                                    List<String> inserts, List<String> updates, List<String> deletes) {
         try {
-            Map<String, Set<String>> sourceKeys = DBUtils.getPrimaryOrUniqueKeys(sourceConn, database, table);
-            Map<String, Set<String>> targetKeys = DBUtils.getPrimaryOrUniqueKeys(targetConn, database, table);
+            Map<String, Set<String>> sourceKeys = DBUtils.getPrimaryOrUniqueKeys(sourceConn, databaseName, tableName);
+            Map<String, Set<String>> targetKeys = DBUtils.getPrimaryOrUniqueKeys(targetConn, databaseName, tableName);
 
             Set<String> keys = null;
             for (Map.Entry<String, Set<String>> sourceKey : sourceKeys.entrySet()) {
@@ -68,22 +68,22 @@ public class DataComparator {
                     .map(Map.Entry::getValue)
                     .orElse(null) : keys;
 
-            Map<Map<String, Object>, Map<String, Object>> sourceData = fetchData(sourceConn, database, table, keys);
-            Map<Map<String, Object>, Map<String, Object>> targetData = fetchData(targetConn, database, table, keys);
+            Map<Map<String, Object>, Map<String, Object>> sourceData = fetchData(sourceConn, databaseName, tableName, keys);
+            Map<Map<String, Object>, Map<String, Object>> targetData = fetchData(targetConn, databaseName, tableName, keys);
 
 
             // 检测变化
             for (Map.Entry<Map<String, Object>, Map<String, Object>> entry : sourceData.entrySet()) {
                 if (!targetData.containsKey(entry.getKey())) {
-                    inserts.add(BuildSQL.buildInsertSql(database, table, entry.getValue()));
+                    inserts.add(BuildSQL.buildInsertSql(null, tableName, entry.getValue()));
                 } else if (!entry.getValue().equals(targetData.get(entry.getKey()))) {
-                    updates.add(BuildSQL.buildUpdateSql(database, table, entry.getKey(), entry.getValue()));
+                    updates.add(BuildSQL.buildUpdateSql(null, tableName, entry.getKey(), entry.getValue()));
                 }
             }
 
             for (Map<String, Object> key : targetData.keySet()) {
                 if (!sourceData.containsKey(key)) {
-                    deletes.add(BuildSQL.buildDeleteSql(database, table, key));
+                    deletes.add(BuildSQL.buildDeleteSql(null, tableName, key));
                 }
             }
 

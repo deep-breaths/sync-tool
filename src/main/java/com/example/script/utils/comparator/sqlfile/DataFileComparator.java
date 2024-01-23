@@ -79,15 +79,15 @@ public class DataFileComparator {
                 // 检测变化
                 for (Map.Entry<Map<String, Object>, Map<String, Object>> sourceEntry : sourceData.entrySet()) {
                     if (!targetData.containsKey(sourceEntry.getKey())) {
-                        inserts.add(BuildSQL.buildInsertSql(databaseName, tableName, sourceEntry.getValue()));
+                        inserts.add(BuildSQL.buildInsertSql(null, tableName, sourceEntry.getValue()));
                     } else if (!sourceEntry.getValue().equals(targetData.get(sourceEntry.getKey()))) {
-                        updates.add(BuildSQL.buildUpdateSql(databaseName, tableName, sourceEntry.getKey(), sourceEntry.getValue()));
+                        updates.add(BuildSQL.buildUpdateSql(null, tableName, sourceEntry.getKey(), sourceEntry.getValue()));
                     }
                 }
 
                 for (Map<String, Object> key : targetData.keySet()) {
                     if (!sourceData.containsKey(key)) {
-                        deletes.add(BuildSQL.buildDeleteSql(databaseName, tableName, key));
+                        deletes.add(BuildSQL.buildDeleteSql(null, tableName, key));
                     }
                 }
 

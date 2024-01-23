@@ -45,6 +45,11 @@ public class MigrationUtils {
 
     private static List<String> generateCreateTableStatements(Connection conn, String databaseName) throws SQLException {
         List<String> statements = new ArrayList<>();
+        if (RuleUtils.checkIsExportDB(databaseName)) {
+            String createStatement = String.format("CREATE DATABASE IF NOT EXISTS `%s` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;", databaseName);
+            statements.add(createStatement);
+        }
+
         List<String> tableNames = getTableNames(conn, databaseName);
         for (String tableName : tableNames) {
             var tableStructure = getTableStructure(conn, databaseName, tableName);

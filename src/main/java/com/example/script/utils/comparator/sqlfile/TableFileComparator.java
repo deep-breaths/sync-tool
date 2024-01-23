@@ -52,8 +52,12 @@ public class TableFileComparator {
         // 获取源数据库和目标数据库的表列表
         List<String> targetCreate = targetALLCreates == null ? new ArrayList<>() : targetALLCreates.get(databaseName);
 
-        Map<String, String> targetTables = formatCreateSql(targetCreate);
 
+        if (targetCreate==null||targetCreate.isEmpty()) {
+            String createStatement = String.format("CREATE DATABASE IF NOT EXISTS `%s` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;", databaseName);
+            diffStatements.add(createStatement);
+        }
+        Map<String, String> targetTables = formatCreateSql(targetCreate);
         for (String sourceTableDDL : sourceTables) {
             SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sourceTableDDL, JdbcConstants.MYSQL);
             List<SQLStatement> statements = parser.parseStatementList();
@@ -88,6 +92,9 @@ public class TableFileComparator {
 
     private static Map<String, String> formatCreateSql(List<String> tableDDLs) {
         Map<String, String> result = new HashMap<>();
+        if (tableDDLs==null){
+            return result;
+        }
         for (String tableDDL : tableDDLs) {
             SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(tableDDL, JdbcConstants.MYSQL);
             List<SQLStatement> statements = parser.parseStatementList();

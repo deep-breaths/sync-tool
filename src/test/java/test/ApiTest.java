@@ -21,7 +21,8 @@ public class ApiTest {
         StopWatch stopWatch=new StopWatch();
         stopWatch.start("任务");
         Param param=new Param();
-        diffSQl(param);
+        //diffSQl(param);
+        updateDB(param);
         api.execute(JSONUtil.toJsonStr(param));
         stopWatch.stop();
         System.out.println(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
@@ -60,5 +61,17 @@ public class ApiTest {
         dataSourceParam.setPassword(SOURCE_PASSWORD);
         dataSourceParam.setDriverName(DRIVER_CLASS_NAME);
         param.setSourceDataParam(JSONUtil.toJsonStr(dataSourceParam));
+    }
+
+    private static void updateDB(Param param){
+        param.setType("diff");
+        DataSourceParam targetDataSourceParam=new DataSourceParam();
+        targetDataSourceParam.setType(param.getSourceType());
+        targetDataSourceParam.setUrl(TARGET_URL);
+        targetDataSourceParam.setUserName(TARGET_USERNAME);
+        targetDataSourceParam.setPassword(TARGET_PASSWORD);
+        targetDataSourceParam.setDriverName(DRIVER_CLASS_NAME);
+        param.setIsExecute(true);
+        param.setTargetDataParam(JSONUtil.toJsonStr(targetDataSourceParam));
     }
 }

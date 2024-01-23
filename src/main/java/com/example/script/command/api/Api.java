@@ -39,14 +39,42 @@ public class Api {
         if (outputPath==null||outputPath.isBlank()){
             outputPath=".";
         }
+        if (param.getIsExecute()!=null&& param.getIsExecute()&&("init".equalsIgnoreCase(param.getType())||"diff".equalsIgnoreCase(param.getType()))){
+            toExeCuteSQL(param, outputPath);
+            return;
+        }
         if ("init".equalsIgnoreCase(param.getType())){
             getInitSQL(param, outputPath);
 
         }else if ("diff".equalsIgnoreCase(param.getType())){
             getDiffSQL(param, outputPath);
-
-
         }
+    }
+
+    private void toExeCuteSQL(Param param, String outputPath) {
+        String targetDataParam = param.getTargetDataParam();
+        if (targetDataParam==null||targetDataParam.isBlank()){
+            throw new RuntimeException("数据源参数不能为空");
+        }
+
+        DataSourceParam dataSourceParam = JSONUtil.toBean(targetDataParam, DataSourceParam.class);
+        try (DruidDataSource dataSource = DBUtils.createDataSource(dataSourceParam.getUrl(), dataSourceParam.getUserName(),
+                                                                         dataSourceParam.getPassword());) {
+
+
+
+
+            String message = """
+                    **************************
+                    **********%s***********
+                    **************************""";
+            System.err.printf((message) + "%n", "更新数据库开始");
+            MigrationUtils.toExecuteSQL(dataSource,outputPath,param.getType());
+            System.err.printf((message) + "%n", "更新数据库结束");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void getInitSQL(Param param, String outputPath) {
@@ -155,8 +183,5 @@ public class Api {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-    private void getDiffSQL(){
-
     }
 }

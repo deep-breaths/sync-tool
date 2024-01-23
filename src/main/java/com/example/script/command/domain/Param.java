@@ -31,11 +31,7 @@ public class Param {
      * 类型：init,diff
      */
     private String type;
-
-    /**
-     * table,data
-     */
-    private String include;
+    private Boolean isExecute;
 
     /**
      * 导入导出规则

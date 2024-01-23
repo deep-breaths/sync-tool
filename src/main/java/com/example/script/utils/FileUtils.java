@@ -88,12 +88,11 @@ public class FileUtils {
         }
         return FileUtils.getFile(FileUtils.getPath(path, FolderType.INIT));
     }
-    public static void getFileByPath(String folderPath,String... folder){
+    public static Map<String, Map<String, List<String>>> getFileByPath(String folderPath, String folder){
         if (folder!=null){
-            for (String s : folder) {
-                getFile(getPath(folderPath, s));
-            }
+            return getFile(getPath(folderPath, folder));
         }
+        return null;
     }
     public static String getPath(String... paths) {
         Path result = Paths.get("");

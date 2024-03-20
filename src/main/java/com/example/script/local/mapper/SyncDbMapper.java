@@ -3,6 +3,7 @@ package com.example.script.local.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.script.common.entity.SyncDb;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -13,7 +14,10 @@ import org.apache.ibatis.annotations.Mapper;
 */
 @Mapper
 public interface SyncDbMapper extends BaseMapper<SyncDb> {
-
+ void insertData(SyncDb syncDb);
+    @Insert("INSERT INTO sync_db (id,version_id, schema_name, create_time) VALUES (#{id},#{versionId}, " +
+            "#{schemaName}, #{createTime})")
+    void insertData1(SyncDb syncDb);
 }
 
 

@@ -6,9 +6,11 @@ package com.example.script.config;
  */
 
 import com.baomidou.mybatisplus.annotation.DbType;
+import com.baomidou.mybatisplus.core.MybatisXMLLanguageDriver;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ibatis.annotations.DeleteProvider;
 import org.apache.ibatis.annotations.InsertProvider;
@@ -66,7 +68,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ImportRuntimeHints(MybatisNativeConfig.MyBaitsRuntimeHintsRegistrar.class)
 public class MybatisNativeConfig {
 
@@ -104,7 +106,7 @@ public class MybatisNativeConfig {
         @Override
         public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
             Stream.of(RawLanguageDriver.class,
-                      XMLLanguageDriver.class,
+                      XMLLanguageDriver.class, MybatisXMLLanguageDriver.class,
                       RuntimeSupport.class,
                       ProxyFactory.class,
                       Slf4jImpl.class,
@@ -120,7 +122,7 @@ public class MybatisNativeConfig {
                       LruCache.class,
                       SoftCache.class,
                       WeakCache.class,
-                      SqlSessionFactoryBean.class,
+                      SqlSessionFactoryBean.class, MybatisSqlSessionFactoryBean.class,
                       ArrayList.class,
                       HashMap.class,
                       TreeSet.class,

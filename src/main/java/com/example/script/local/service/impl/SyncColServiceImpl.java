@@ -4,7 +4,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.script.common.entity.SyncCol;
 import com.example.script.local.mapper.SyncColMapper;
 import com.example.script.local.service.SyncColService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
 * @author admin
@@ -15,6 +18,12 @@ import org.springframework.stereotype.Service;
 public class SyncColServiceImpl extends ServiceImpl<SyncColMapper, SyncCol>
     implements SyncColService{
 
+    @Autowired
+    SyncColMapper syncColMapper;
+    @Override
+    public List<SyncCol> selectWithEmpty(){
+        return syncColMapper.selectWithEmpty();
+    }
 }
 
 

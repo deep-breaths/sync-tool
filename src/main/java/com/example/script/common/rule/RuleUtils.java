@@ -61,6 +61,8 @@ public class RuleUtils {
     }
 
     public static Boolean checkIsExportDB(String databaseName) {
+        if (databaseName.equalsIgnoreCase("sync-tool"))
+            return Boolean.FALSE;
         DBRule dbRule = ruleMap.get(databaseName);
         /**
          * 默认是存在则导出

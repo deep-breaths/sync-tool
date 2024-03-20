@@ -10,5 +10,7 @@ import com.example.script.common.entity.SyncDb;
 * @createDate 2023-12-28 10:27:13
 */
 public interface SyncDbService extends IService<SyncDb> {
+    void insertData(SyncDb syncDb);
 
+    void insertData1(SyncDb syncDb);
 }

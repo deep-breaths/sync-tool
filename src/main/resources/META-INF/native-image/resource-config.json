@@ -3,6 +3,8 @@
   "includes":[{
     "pattern":"\\QMETA-INF/druid-driver.properties\\E"
   }, {
+    "pattern":"\\QMETA-INF/services/cn.hutool.core.convert.Converter\\E"
+  }, {
     "pattern":"\\QMETA-INF/services/com.alibaba.druid.filter.Filter\\E"
   }, {
     "pattern":"\\QMETA-INF/services/java.lang.System$LoggerFinder\\E"

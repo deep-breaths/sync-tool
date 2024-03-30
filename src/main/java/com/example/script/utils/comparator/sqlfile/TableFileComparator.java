@@ -28,7 +28,7 @@ public class TableFileComparator {
     public static DiffDDL getDiffDDL(Map<String, List<String>> sourceCreates, Map<String, List<String>> targetCreates) {
         Map<String, Map<String, List<String>>> result = new HashMap<>();
         Map<String, Map<String, Map<String, Set<String>>>> allKeys = new HashMap<>();
-        sourceCreates.forEach((databaseName, tables) -> {
+        Optional.ofNullable(sourceCreates).ifPresent(sourceMap -> sourceMap.forEach((databaseName, tables) -> {
             List<String> diffStatements = compareTableSchema(tables, targetCreates, databaseName);
             if (!diffStatements.isEmpty()) {
                 result.computeIfAbsent(DIFF_TABLE, key -> new HashMap<>()).put(databaseName, diffStatements);
@@ -36,7 +36,7 @@ public class TableFileComparator {
             Map<String, Map<String, Set<String>>> tableKeys = TableFileComparator.getPrimaryOrUniqueKeys(tables);
             allKeys.put(databaseName, tableKeys);
 
-        });
+        }));
 
         DiffDDL diffDDL = new DiffDDL();
         diffDDL.setDiffSchemas(result);
@@ -48,13 +48,14 @@ public class TableFileComparator {
     public static List<String> compareTableSchema(List<String> sourceTables, Map<String, List<String>> targetALLCreates,
                                                   String databaseName) {
         List<String> diffStatements = new ArrayList<>();
-
+        if (sourceTables == null) sourceTables = new ArrayList<>();
         // 获取源数据库和目标数据库的表列表
-        List<String> targetCreate = Optional.ofNullable(targetALLCreates.get(databaseName))
+        List<String> targetCreate = Optional.ofNullable(targetALLCreates)
+                                            .map(map -> map.get(databaseName))
                                             .orElse(new ArrayList<>());
 
 
-        if (targetCreate==null||targetCreate.isEmpty()) {
+        if (targetCreate == null || targetCreate.isEmpty()) {
             String createStatement = String.format("CREATE DATABASE IF NOT EXISTS `%s` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;", databaseName);
             diffStatements.add(createStatement);
         }

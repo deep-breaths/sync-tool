@@ -1,5 +1,6 @@
 package com.example.script.command.api;
 
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.lang.TypeReference;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -74,12 +75,12 @@ public class Api {
     }
 
     private void toExecuteSQL(Param param, String outputPath) {
-        String targetDataParam = param.getTargetDataParam();
-        if (targetDataParam==null||targetDataParam.isBlank()){
+        Object targetDataParam = param.getTargetDataParam();
+        if (targetDataParam==null|| Convert.toStr(targetDataParam).isBlank()){
             throw new RuntimeException("数据源参数不能为空");
         }
 
-        DataSourceParam dataSourceParam = JSONUtil.toBean(targetDataParam, DataSourceParam.class);
+        DataSourceParam dataSourceParam = JSONUtil.toBean(Convert.toStr(targetDataParam), DataSourceParam.class);
         try (DruidDataSource dataSource = DBUtils.createDataSource(dataSourceParam.getUrl(), dataSourceParam.getUserName(),
                                                                          dataSourceParam.getPassword());) {
 
@@ -101,7 +102,7 @@ public class Api {
 
     private void getInitSQL(Param param, String outputPath) {
 
-        String sourceDataParam = param.getSourceDataParam();
+        String sourceDataParam = Convert.toStr(param.getSourceDataParam());
         if (sourceDataParam==null||sourceDataParam.isBlank()){
             throw new RuntimeException("数据源参数不能为空");
         }
@@ -114,8 +115,8 @@ public class Api {
         checkParam(param);
         String sourceType = param.getSourceType();
         String targetType = param.getTargetType();
-        String sourceDataParam = param.getSourceDataParam();
-        String targetDataParam = param.getTargetDataParam();
+        String sourceDataParam = Convert.toStr(param.getSourceDataParam());
+        String targetDataParam = Convert.toStr(param.getTargetDataParam());
         String sourceFilePath = "";
         String targetFilePath = "";
         if (sourceType.equalsIgnoreCase("ds")){
@@ -162,7 +163,7 @@ public class Api {
         if (!param.getSourceType().equalsIgnoreCase("ds") &&!param.getSourceType().equalsIgnoreCase("file")){
             throw new RuntimeException("源数据类型不正确（ds:数据源，file:sql文件）");
         }
-        if (param.getSourceDataParam()==null||param.getSourceDataParam().isBlank()){
+        if (param.getSourceDataParam()==null||Convert.toStr(param.getSourceDataParam()).isBlank()){
             throw new RuntimeException("源数据参数不能为空");
         }
         if (param.getTargetType()==null){
@@ -171,7 +172,7 @@ public class Api {
         if (!param.getTargetType().equalsIgnoreCase("ds") &&!param.getTargetType().equalsIgnoreCase("file")){
             throw new RuntimeException("目标数据类型不正确（ds:数据源，file:sql文件）");
         }
-        if (param.getTargetDataParam()==null||param.getTargetDataParam().isBlank()){
+        if (param.getTargetDataParam()==null||Convert.toStr(param.getTargetDataParam()).isBlank()){
             throw new RuntimeException("源数据参数不能为空");
         }
     }

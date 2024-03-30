@@ -21,6 +21,12 @@
   "name":"[Ljava.lang.String;"
 },
 {
+  "name":"[Ljava.lang.reflect.Field;"
+},
+{
+  "name":"[Ljava.lang.reflect.Method;"
+},
+{
   "name":"[Ljavax.management.openmbean.CompositeData;"
 },
 {
@@ -28,6 +34,34 @@
 },
 {
   "name":"[Z"
+},
+{
+  "name":"cn.hutool.core.map.MapWrapper",
+  "queryAllDeclaredMethods":true
+},
+
+ {
+    "name": "cn.hutool.json.JSON",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true,
+    "allPublicConstructors": true,
+    "allPublicMethods": true,
+    "allPublicFields": true,
+  "queryAllPublicMethods":true
+  },
+{
+  "name":"cn.hutool.json.JSONConverter",
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"cn.hutool.json.JSONGetter",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"cn.hutool.json.JSONObject",
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"com.alibaba.druid.pool.DruidAbstractDataSource",
@@ -75,12 +109,30 @@
   "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
 },
 {
-  "name":"com.mysql.cj.conf.url.SingleConnectionUrl",
-  "methods":[{"name":"<init>","parameterTypes":["com.mysql.cj.conf.ConnectionUrlParser","java.util.Properties"] }]
+  "name":"com.example.script.command.domain.DataParam",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"setDbType","parameterTypes":["java.lang.String"] }, {"name":"setType","parameterTypes":["java.lang.String"] }]
 },
 {
-  "name":"com.mysql.cj.exceptions.CJException",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
+  "name":"com.example.script.command.domain.DataSourceParam",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setDriverName","parameterTypes":["java.lang.String"] }, {"name":"setPassword","parameterTypes":["java.lang.String"] }, {"name":"setUrl","parameterTypes":["java.lang.String"] }, {"name":"setUserName","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"com.example.script.command.domain.Param",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setIsExecute","parameterTypes":["java.lang.Boolean"] }, {"name":"setOutputPath","parameterTypes":["java.lang.String"] }, {"name":"setRule","parameterTypes":["cn.hutool.json.JSONObject"] }, {"name":"setRulePath","parameterTypes":["java.lang.String"] }, {"name":"setSourceDataParam","parameterTypes":["java.lang.Object"] }, {"name":"setSourceType","parameterTypes":["java.lang.String"] }, {"name":"setTargetDataParam","parameterTypes":["java.lang.Object"] }, {"name":"setTargetType","parameterTypes":["java.lang.String"] }, {"name":"setType","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"com.mysql.cj.conf.url.SingleConnectionUrl",
+  "methods":[{"name":"<init>","parameterTypes":["com.mysql.cj.conf.ConnectionUrlParser","java.util.Properties"] }]
 },
 {
   "name":"com.mysql.cj.jdbc.AbandonedConnectionCleanupThread"
@@ -181,6 +233,10 @@
   "queryAllPublicConstructors":true
 },
 {
+  "name":"java.io.Serializable",
+  "queryAllPublicMethods":true
+},
+{
   "name":"java.lang.Boolean",
   "fields":[{"name":"TYPE"}]
 },
@@ -191,6 +247,10 @@
 {
   "name":"java.lang.Character",
   "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Cloneable",
+  "queryAllPublicMethods":true
 },
 {
   "name":"java.lang.Deprecated",
@@ -209,8 +269,18 @@
   "fields":[{"name":"TYPE"}]
 },
 {
+  "name":"java.lang.Iterable",
+  "queryAllPublicMethods":true
+},
+{
   "name":"java.lang.Long",
   "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Object",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicMethods":true
 },
 {
   "name":"java.lang.Short",
@@ -227,6 +297,10 @@
 {
   "name":"java.lang.Void",
   "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.invoke.MethodHandles",
+  "methods":[{"name":"privateLookupIn","parameterTypes":["java.lang.Class","java.lang.invoke.MethodHandles$Lookup"] }]
 },
 {
   "name":"java.lang.management.BufferPoolMXBean",
@@ -294,12 +368,6 @@
   "name":"java.security.SecureRandomParameters"
 },
 {
-  "name":"java.security.interfaces.ECPrivateKey"
-},
-{
-  "name":"java.security.interfaces.ECPublicKey"
-},
-{
   "name":"java.security.interfaces.RSAPrivateKey"
 },
 {
@@ -311,6 +379,10 @@
 },
 {
   "name":"java.util.Date"
+},
+{
+  "name":"java.util.Map",
+  "queryAllPublicMethods":true
 },
 {
   "name":"java.util.PropertyPermission",

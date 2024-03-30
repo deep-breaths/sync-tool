@@ -1,0 +1,161 @@
+stages:
+  - init
+  - build
+
+variables:
+  artifactId: backend
+  prefix: iot-platform
+  tag: v1.0.01_latest
+  target_repo_url: 192.168.30.144:8089/root/iot-platform-backend.git
+  target_repo_dir: iot-platform-backend
+  MAVEN_OPTS: "-Dmaven.repo.remote=https://maven.aliyun.com/repository/public -Dmaven.repo.local=/root/.m2/repository"
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /^build=*/
+      when: always
+    - when: never
+
+#cache:
+#  paths:
+#    - $target_repo_dir/
+
+clone:
+  stage: init
+  image: bitnami/git:latest
+  script:
+    - >
+      if [[ $CI_COMMIT_MESSAGE =~ ^build= ]]; then
+        branch_name="${CI_COMMIT_MESSAGE#build=}"
+        echo "打包任务开始执行：$branch_name"
+      fi
+    - rm -rf $target_repo_dir/
+    - target_repo_url="http://oauth2:${PERSONAL_ACCESS_TOKEN}@${target_repo_url}"
+    # - branches=$(git ls-remote --heads "$target_repo_url" | awk -F '/' '{print $NF}')
+    # - echo "$branches"
+    - |
+     git clone -b $branch_name --depth 1 $target_repo_url $target_repo_dir
+    - ls $target_repo_dir
+    - echo "打包任务开始执行：$branch_name" >> $target_repo_dir/log.txt
+    - cp maven-build.sh $target_repo_dir/
+  rules:
+      - if: $CI_COMMIT_MESSAGE =~ /^build=*/
+        when: always
+      - when: manual
+#  cache:
+#    paths:
+#      - $target_repo_dir/
+  artifacts:
+    paths:
+      - $target_repo_dir/
+
+native:
+  stage: init
+  image: vegardit/graalvm-maven:21.0.2
+  script:
+    - file_path="./sync-tool"
+    - >
+      if [ -f "$file_path" ]; then
+        echo "File exists."
+        exit 0
+      fi
+    - >
+      echo "deb http://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm main non-free-firmware" > /etc/apt/sources.list \
+      && echo "deb-src http://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm main non-free-firmware" >> /etc/apt/sources.list \
+      && echo "deb http://security.debian.org/debian-security bookworm-security main non-free-firmware" >> /etc/apt/sources.list \
+      && echo "deb-src http://security.debian.org/debian-security bookworm-security main non-free-firmware" >> /etc/apt/sources.list
+    - apt-get update && apt-get install -y build-essential
+    - source glibc-install.sh
+    - mvn -Pnative native:compile -DskipTests $MAVEN_OPTS --settings=/root/.m2/settings.xml
+    - cp target/sync-tool ./
+    - cp target/*.jar ./
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /^build=*/
+#    - if: $CI_COMMIT_MESSAGE == "build=native"
+      when: always
+    - when: manual
+  artifacts:
+    name: sync-tool
+    expire_in: never
+    paths:
+      - sync-tool
+      - ./*.jar
+
+build_mysql:
+  stage: build
+  needs:
+    - job: native
+      artifacts: true
+  image: vegardit/graalvm-maven:21.0.2
+  script:
+    - echo '{"sourceType":"ds","targetType":"ds","sourceDataParam":{"url":"jdbc:mysql://192.168.30.144:3306","userName":"root","password":"123456","driverName":"com.mysql.cj.jdbc.Driver","type":"ds","dbType":"mysql"},"targetDataParam":{"url":"jdbc:mysql://192.168.30.144:3307","userName":"root","password":"123456","driverName":"com.mysql.cj.jdbc.Driver","type":"ds","dbType":"mysql"},"type":"init","isExecute":null,"rule":null,"rulePath":null,"outputPath":null}' >> param.json
+    - java -jar ./sync-tool-0.0.1-SNAPSHOT.jar --file=./param.json
+  artifacts:
+    name: mysql
+    paths:
+      - tmp/
+      - init/
+      - diff/
+    when: on_success
+    expire_in: never
+
+build_mongodb:
+  stage: build
+  image: mongo:7
+  variables:
+    mongoHost: 192.168.30.45
+    mongoPort: 27017
+    mongoUsername: root
+    mongoPassword: 123456
+    mongoDatabaseName: device_app
+    outPath: ./mongodb/
+    collectionnames: protocol_model protocol_property protocol_property_default protocol_specs_unit aviator_expression_info device_alarm_condition visualization_icon
+  script:
+    - |
+      for collectionname in $collectionnames
+        do
+          mongoexport  --host $mongoHost --port $mongoPort --username $mongoUsername --password $mongoPassword -d $mongoDatabaseName -c $collectionname --out ${outPath}${collectionname}.json
+        done
+  artifacts:
+    name: mongodb
+    paths:
+      - mongodb/
+    when: on_success
+    expire_in: never
+
+build:
+  stage: build
+  image: maven:3.6-jdk-8-openj9
+  before_script:
+    - apt-get update
+    - apt-get install -y apt-transport-https ca-certificates curl gnupg
+    - curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
+    - echo "deb [arch=amd64] https://download.docker.com/linux/debian buster stable" > /etc/apt/sources.list.d/docker.list
+    - apt-get update
+    - apt-get install -y docker-ce-cli
+  script:
+    - >
+      if [[ $CI_COMMIT_MESSAGE =~ ^build= ]]; then
+        export branch_name="${CI_COMMIT_MESSAGE#build=}"
+        echo "打包任务开始执行：$branch_name"
+      fi
+    - ls
+    - cd $target_repo_dir
+    - mkdir -p $PWD/jar
+    - mkdir -p $PWD/image
+    - ls
+    - mvn clean install -DskipTests $MAVEN_OPTS --settings=/root/.m2/settings.xml
+    - bash maven-build.sh -b "192.168.30.144:5000,iot-platform"
+    - cp log.txt jar/
+    - cd ..
+    - cp $target_repo_dir/jar/* hushan-iot-deploy/jar/
+  needs:
+    - job: clone
+      artifacts: true
+  artifacts:
+    name: $artifactId
+    expire_in: never
+    paths:
+      - $target_repo_dir/image/
+      - $target_repo_dir/jar/*.jar
+      - $target_repo_dir/jar/*.txt

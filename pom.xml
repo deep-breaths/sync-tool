@@ -13,8 +13,8 @@
     </properties>
     <repositories>
         <repository>
-            <id>central</id>
-            <url>https://repo.maven.apache.org/maven2</url>
+            <id>aliyun-repos</id>
+            <url>https://maven.aliyun.com/repository/public</url>
         </repository>
     </repositories>
     <dependencies>
@@ -47,20 +47,21 @@
             <scope>compile</scope>
         </dependency>
 
-
-        <!-- Apache calcite -->
         <dependency>
-            <groupId>org.apache.calcite</groupId>
-            <artifactId>calcite-core</artifactId>
-            <version>1.36.0</version>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>2.2</version>
         </dependency>
-
         <dependency>
-            <groupId>org.apache.calcite.avatica</groupId>
-            <artifactId>avatica</artifactId>
-            <version>1.24.0</version>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.9</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -110,6 +111,8 @@
                     <mainClass>com.example.script.ScriptApplication</mainClass>
                     <buildArgs>
                         <!-- no-fallback 选项告诉 GraalVM 的 native-image 工具在编译时不生成垫片，以减小本机映像的大小和提高性能。-->
+                        <arg>--static</arg>
+                        <arg>--libc=musl</arg>
                         <arg>--no-fallback</arg>
                         <arg>-H:+UnlockExperimentalVMOptions</arg>
 

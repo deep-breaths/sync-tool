@@ -1,0 +1,152 @@
+#代码修改yaml测试
+spring:
+  datasource:
+    dynamic:
+      enable: true
+    druid:
+      core:
+        url: jdbc:mysql://${env.mysql.host}/device-center?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&serverTimezone=Asia/Shanghai
+        username: ${env.mysql.username}
+        password: ${env.mysql.password}
+        driver-class-name: com.mysql.cj.jdbc.Driver
+      dict:
+        url: jdbc:mysql://${env.mysql.host}/dict-center?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&serverTimezone=Asia/Shanghai
+        username: ${env.mysql.username}
+        password: ${env.mysql.password}
+        driver-class-name: com.mysql.cj.jdbc.Driver
+      log:
+        url: jdbc:mysql://${env.mysql.host}/log-center?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&serverTimezone=Asia/Shanghai
+        username: ${env.mysql.username}
+        password: ${env.mysql.password}
+        driver-class-name: com.mysql.cj.jdbc.Driver
+    initial-size: 1
+    max-active: 20
+    min-idle: 1
+    max-wait: 60000
+    pool-prepared-statements: true
+    max-pool-prepared-statement-per-connection-size: 20
+    validation-query: SELECT 'x'
+    test-on-borrow: false
+    test-on-return: false
+    test-while-idle: true
+    time-between-eviction-runs-millis: 60000
+    min-evictable-idle-time-millis: 300000
+    filters: stat,wall
+    web-stat-filter.enabled: true
+    web-stat-filter.url-pattern: /*
+    web-stat-filter.exclusions: '*.js , *.gif ,*.jpg ,*.png ,*.css ,*.ico , /druid/*'
+    web-stat-filter.session-stat-max-count: 1000
+    web-stat-filter.profile-enable: true
+    stat-view-servlet.enabled: true
+    stat-view-servlet.url-pattern: /druid/*
+    stat-view-servlet.reset-enable: true
+    stat-view-servlet.login-username: admin
+    stat-view-servlet.login-password: admin
+  redis:
+    host: ${env.redis.host}
+    port: ${env.redis.port}
+    timeout: 6000
+    database: 8
+    lettuce:
+      pool:
+        max-active: 10
+        max-idle: 8
+        max-wait: 100
+        min-idle: 2
+      shutdown-timeout: 100ms
+  data:
+    mongodb:
+      auto-index-creation: true
+      mode: cluster
+      uri: mongodb://${env.mongo.rs}/device_app?replicaSet=rs0&connectTimeoutMS=300000
+mybatis-plus:
+  global-config:
+    banner: false
+    db-config:
+      logic-delete-value: UNIX_TIMESTAMP()
+      logic-not-delete-value: '0'
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath*:com/hushan/**/dao/*.xml
+security:
+  oauth2:
+    ignored: /users-anon/**  , /doc.html   ,/document.html ,/users/save
+    token:
+      store:
+        type: redis
+ribbon:
+  ServerListRefreshInterval: 10
+  OkToRetryOnAllOperations: true
+  MaxAutoRetries: 1
+  MaxAutoRetriesNextServer: 1
+  ReadTimeout: 16000
+  ConnectTimeout: 16000
+  eager-load:
+    enabled: true
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          thread:
+            timeoutInMilliseconds: 16000
+feign:
+  okhttp:
+    enabled: true
+  httpclient:
+    enabled: false
+    max-connections: 1000
+    max-connections-per-route: 100
+  compression:
+    response:
+      enabled: true
+    request:
+      enabled: true
+xxl:
+  job:
+    executor:
+      logpath: ../logs/xxl-job/executor
+      logretentiondays: 7
+      port: 9997
+      appname: ${spring.application.name}
+    admin:
+      addresses: http://127.0.0.1:8081/
+logging:
+  level:
+    org.hibernate: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.hibernate.type.descriptor.sql.BasicExtractor: TRACE
+    com.alibaba.nacos.client.config.impl: WARN
+seata:
+  enanble: true
+  application-id: ${spring.application.name}
+  tx-service-group: fsp_tx_group
+  config:
+    type: nacos
+    nacos:
+      namespace: 379ab54b-f04b-4b76-87b1-34102b908fab
+      server-addr: ${env.nacos.host}
+      group: SEATA_GROUP
+  registry:
+    type: nacos
+    nacos:
+      application: seata-server
+      server-addr: ${env.nacos.host}
+      namespace: 379ab54b-f04b-4b76-87b1-34102b908fab
+  service:
+    grouplist:
+      default: ${env.seata.host}
+    vgroupMapping:
+      fsp_tx_group: default
+iot:
+  mqtt:
+    username: admin
+    password: admin
+    urls:
+    - ${env.emqx.host}
+    defaultTopics: /sys/device/register
+    subscriber-client-id: ${spring.application.name}_${random.uuid}_subscription
+    producer-client-id: ${spring.application.name}_${random.uuid}_production
+key: value

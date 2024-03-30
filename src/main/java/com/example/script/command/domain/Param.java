@@ -22,15 +22,20 @@ public class Param {
     /**
      * 源数据相关参数
      */
-    private String sourceDataParam;
+    private Object sourceDataParam;
     /**\
      * 目标据相关参数
      */
-    private String targetDataParam;
+    private Object targetDataParam;
     /**
      * 类型：init,diff
      */
     private String type;
+    /**
+     * 当isExecute为true时更新targetDataParam数据库
+     * type=init执行初始化语句
+     * type=diff执行差异化语句
+     */
     private Boolean isExecute;
 
     /**
